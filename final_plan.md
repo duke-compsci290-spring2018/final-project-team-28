@@ -23,6 +23,7 @@ The music player for playlists will mirror that of the history timeline's; the v
 - **d3.js**: We will use d3.js for all song data visualizations as well as for the interactive timeline on the landding page.
 - **vue.js**: We will construct the music player, as well as each individual visualization wrapper using vue components. In addition, we will pass song/timeline data to our web template by using vue data bindings.
 - **firebase**: User details, user playlist information, and global playist information will all be stored in firebase. Depending on data load times, we may also store timeline data in firebase. If, for some reason, we decide Firebase is not meeting our persistent data storage needs, we may switch to using PostgreSQL or MongoDB. 
+- **showdown.js**: I accidentally typed this document in Markdown and needed to convert it to html.
 
 ### Resources
 - **napster.js**: We will use the napster SDK to acquire song audio samples.

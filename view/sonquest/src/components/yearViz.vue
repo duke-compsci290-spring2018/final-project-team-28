@@ -21,13 +21,37 @@ var encodedPayload = new Buffer(payload).toString('base64');
 var authOptions = {
   url: "https://accounts.spotify.com/api/token",
   headers: {
-    "Authorization": "Basic " + encodedPayload
+    "Authorization": 'Basic ' + encodedPayload,
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': 'Origin, X-Requested-With, Content-Type, Accept'
   },
   form: {
     grant_type: "client_credentials"
   },
   json: true
 };
+console.log(authOptions);
+
+request.post(authOptions, function(error, response, body) {
+  if (!error && response.statusCode === 200) {
+
+    // use the access token to access the Spotify Web API
+    var token = body.access_token;
+    var options = {
+      url: 'https://api.spotify.com/v1/users/jmperezperez',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'Origin, X-Requested-With, Content-Type, Accept'
+      },
+      json: true
+    };
+    request.get(options, function(error, response, body) {
+      console.log(response);
+      console.log(body);
+    });
+  }
+});
 
 var config = {
   apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",
@@ -42,6 +66,7 @@ var db = firebase.initializeApp(config).database();
 var storageRef = firebase.storage().ref();
 // global reference to remote data
 var yearRef = db.ref('1965');
+
 // connect Firebase to Vue
 Vue.use(VueFire);
 export default {
@@ -113,7 +138,7 @@ export default {
       });
       //console.log(allCoords);
       request.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
+        if (!error && response.statusCode === 200) {
 
         // use the access token to access the Spotify Web API
         var token = body.access_token;
@@ -148,9 +173,9 @@ export default {
       var z = d3.scaleOrdinal(d3.schemeCategory20c);
 
       var line = d3.line()
-        .curve(d3.curveBasis)
-        .x(function(d) { return x(d.date); })
-        .y(function(d) { return y(d.rank); });
+      .curve(d3.curveBasis)
+      .x(function(d) { return x(d.date); })
+      .y(function(d) { return y(d.rank); });
     },
     postData() {
       return fetch(url, {

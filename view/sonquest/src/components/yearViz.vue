@@ -1,14 +1,17 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    {{getPlottable}}
-    
+    <!--{{getPlottable}}-->
+    <button @click="drawPlot">test</button>
+    <div class="graph"></div>
+    <!--<svg width="960" height="500"></svg>-->
   </div>
 </template>
 
 <script>
 var billboard = require('billboard-top-100').getChart;
 import Vue from 'vue'
+var d3 = require('d3')
 var VueFire = require('vuefire')
 var firebase = require('firebase')
 var config = {
@@ -95,6 +98,29 @@ export default {
       });
       console.log(allCoords);
       return allCoords;
+    }
+  },
+  methods: {
+    drawPlot () {
+      //ATTACH TO LIFECYCLE HOOK LATER
+      var svg = d3.select("svg");
+      var margin = {top: 20, right: 80, bottom: 30, left: 50};
+      var width = svg.attr("width") - margin.left - margin.right;
+      var height = svg.attr("height") - margin.top - margin.bottom;
+      var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var parseTime = d3.timeParse('%Y-%m-%d');
+
+      var x = d3.scaleTime().range([0, width]);
+      var y = d3.scaleLinear().range([height, 0]);
+      var z = d3.scaleOrdinal(d3.schemeCategory20c);
+
+      var line = d3.line()
+        .curve(d3.curveBasis)
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(d.rank); });
+
+
     }
   }
 }

@@ -14,44 +14,22 @@ import Vue from 'vue'
 var d3 = require('d3')
 var VueFire = require('vuefire')
 var firebase = require('firebase')
-var request = require('request')
-var payload = 'd556205db80d40ceae86e67253b69898'+':'+'7a98e8d42f0944ecb2aef2d72dc53745';
-var encodedPayload = new Buffer(payload).toString('base64');
+var request = require('request'); // "Request" library
 
+var client_id = 'd556205db80d40ceae86e67253b69898'; // Your client id
+var client_secret = '7a98e8d42f0944ecb2aef2d72dc53745'; // Your secret
+
+// your application requests authorization
 var authOptions = {
-  url: "https://accounts.spotify.com/api/token",
+  url: 'https://accounts.spotify.com/api/token',
   headers: {
-    "Authorization": 'Basic ' + encodedPayload,
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Origin': 'Origin, X-Requested-With, Content-Type, Accept'
+    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
   },
   form: {
-    grant_type: "client_credentials"
+    grant_type: 'client_credentials'
   },
   json: true
 };
-console.log(authOptions);
-
-request.post(authOptions, function(error, response, body) {
-  if (!error && response.statusCode === 200) {
-
-    // use the access token to access the Spotify Web API
-    var token = body.access_token;
-    var options = {
-      url: 'https://api.spotify.com/v1/users/jmperezperez',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Origin': 'Origin, X-Requested-With, Content-Type, Accept'
-      },
-      json: true
-    };
-    request.get(options, function(error, response, body) {
-      console.log(response);
-      console.log(body);
-    });
-  }
-});
 
 var config = {
   apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",

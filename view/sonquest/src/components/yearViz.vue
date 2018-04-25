@@ -1,7 +1,7 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    <!--{{getPlottable}}-->
+    {{getPlottable}}
     <button @click="drawPlot">test</button>
     <div class="graph"></div>
     <!--<svg width="960" height="500"></svg>-->
@@ -14,6 +14,21 @@ import Vue from 'vue'
 var d3 = require('d3')
 var VueFire = require('vuefire')
 var firebase = require('firebase')
+var request = require('request')
+var payload = 'd556205db80d40ceae86e67253b69898'+':'+'7a98e8d42f0944ecb2aef2d72dc53745';
+var encodedPayload = new Buffer(payload).toString('base64');
+
+var authOptions = {
+  url: "https://accounts.spotify.com/api/token",
+  headers: {
+    "Authorization": "Basic " + encodedPayload
+  },
+  form: {
+    grant_type: "client_credentials"
+  },
+  json: true
+};
+
 var config = {
   apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",
   authDomain: "sonquest-3379c.firebaseapp.com",
@@ -48,7 +63,7 @@ export default {
       var songs = [];
       this.weeks.forEach(function(elem){
         songs.push(elem);
-        //console.log(elem)
+        console.log(elem)
       });
       //console.log('song ranks',songs);
       return songs;
@@ -96,7 +111,24 @@ export default {
           }
         });
       });
-      console.log(allCoords);
+      //console.log(allCoords);
+      request.post(authOptions, function(error, response, body) {
+      if (!error && response.statusCode === 200) {
+
+        // use the access token to access the Spotify Web API
+        var token = body.access_token;
+        var options = {
+          url: 'https://api.spotify.com/v1/users/jmperezperez',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          },
+          json: true
+        };
+        request.get(options, function(error, response, body) {
+          console.log(body);
+        });
+      }
+    });
       return allCoords;
     }
   },
@@ -119,8 +151,11 @@ export default {
         .curve(d3.curveBasis)
         .x(function(d) { return x(d.date); })
         .y(function(d) { return y(d.rank); });
+    },
+    postData() {
+      return fetch(url, {
 
-
+      })
     }
   }
 }

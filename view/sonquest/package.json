@@ -13,6 +13,7 @@
     "billboard-top-100": "^2.0.9",
     "d3": "^5.1.0",
     "firebase": "^4.13.1",
+    "request": "^2.85.0",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vuefire": "^1.4.5"

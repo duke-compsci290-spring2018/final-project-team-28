@@ -1,7 +1,8 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    {{songRanks}}
+    {{getPlottable}}
+    
   </div>
 </template>
 
@@ -44,7 +45,9 @@ export default {
       var songs = [];
       this.weeks.forEach(function(elem){
         songs.push(elem);
+        //console.log(elem)
       });
+      //console.log('song ranks',songs);
       return songs;
     },
     allSongs: function () {
@@ -54,6 +57,44 @@ export default {
           songs.add(element.track);
         });
       });
+      return songs;
+    },
+
+    weeksInYear: function () {
+      var weeks = [];
+      this.songRanks.forEach(function(elem){
+        weeks.push(elem['.key']);
+      });
+      return weeks;
+    },
+
+    getPlottable: function () {
+      var sRanks = this.songRanks;
+      var aSongs = this.allSongs;
+      var allCoords = [];
+      aSongs.forEach(function(elem){
+        var songPlot = {};
+        songPlot['track']=elem;
+        sRanks.forEach(function(element){
+          element['.value'].forEach(function(top5Song){
+            if(top5Song.track == elem){
+              //console.log('got one',elem);
+              songPlot[element['.key']] = top5Song.rank+1;
+            }
+          });
+        });
+        allCoords.push(songPlot);
+      });
+      var weeks = this.weeksInYear;
+      allCoords.forEach(function(elem){
+        weeks.forEach(function(element){
+          if(!elem[element]){
+            elem[element]=100;
+          }
+        });
+      });
+      console.log(allCoords);
+      return allCoords;
     }
   }
 }

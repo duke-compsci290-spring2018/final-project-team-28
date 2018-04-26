@@ -1,8 +1,9 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    {{getPlottable}}
-    <button @click="drawPlot">test</button>
+    <!--{{getPlottable}}
+    <button @click="drawPlot">test</button>-->
+    <button @click="initPlay">play</button>
     <div class="graph"></div>
     <!--<svg width="960" height="500"></svg>-->
   </div>
@@ -20,16 +21,7 @@ var client_id = 'd556205db80d40ceae86e67253b69898'; // Your client id
 var client_secret = '7a98e8d42f0944ecb2aef2d72dc53745'; // Your secret
 
 // your application requests authorization
-var authOptions = {
-  url: 'https://accounts.spotify.com/api/token',
-  headers: {
-    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-  },
-  form: {
-    grant_type: 'client_credentials'
-  },
-  json: true
-};
+
 
 var config = {
   apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",
@@ -66,9 +58,27 @@ export default {
       var songs = [];
       this.weeks.forEach(function(elem){
         songs.push(elem);
-        console.log(elem)
+        elem['.value'].forEach(function(element){
+          if(!(element.mp3 || element.img)) {
+            const axios = require('axios')
+            axios.get('http://localhost:3000/track/'+element.artist+'/'+element.track)
+              .then(response => {
+                //var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
+                if(!img){
+                  console.log(element.artist,element.track);
+                }
+                yearRef.child(elem['.key']).child(element.rank).update({
+                  'img': img,
+                  'mp3': response.data.mp3
+                });
+              })
+              .catch(err => {
+                console.error(err);
+              });            
+          }
+        });
+
       });
-      //console.log('song ranks',songs);
       return songs;
     },
     allSongs: function () {
@@ -78,6 +88,7 @@ export default {
           songs.add(element.track);
         });
       });
+
       return songs;
     },
 
@@ -115,23 +126,6 @@ export default {
         });
       });
       //console.log(allCoords);
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-
-        // use the access token to access the Spotify Web API
-        var token = body.access_token;
-        var options = {
-          url: 'https://api.spotify.com/v1/users/jmperezperez',
-          headers: {
-            'Authorization': 'Bearer ' + token
-          },
-          json: true
-        };
-        request.get(options, function(error, response, body) {
-          console.log(body);
-        });
-      }
-    });
       return allCoords;
     }
   },
@@ -155,11 +149,19 @@ export default {
       .x(function(d) { return x(d.date); })
       .y(function(d) { return y(d.rank); });
     },
-    postData() {
-      return fetch(url, {
+    initPlay () {
+      this.curWeek = this.weeks[0]['.key'];
+      for(var i = 1; i<=5; i++){
+        if(this.weeks[0]['.value'][i].mp3){
+          var audio = new Audio(this.weeks[0]['.value'][i].mp3);
+          audio.play();
+          break;
+        }
+      }
+        
+      
+    },
 
-      })
-    }
   }
 }
 </script>

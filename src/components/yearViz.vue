@@ -1,7 +1,7 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    {{getPlottable}}
+    <!-- {{getPlottable}} -->
     <button @click="drawPlot">test</button>
     <div class="graph"></div>
     <!--<svg width="960" height="500"></svg>-->
@@ -14,22 +14,6 @@ import Vue from 'vue'
 var d3 = require('d3')
 var VueFire = require('vuefire')
 var firebase = require('firebase')
-var request = require('request'); // "Request" library
-
-var client_id = 'd556205db80d40ceae86e67253b69898'; // Your client id
-var client_secret = '7a98e8d42f0944ecb2aef2d72dc53745'; // Your secret
-
-// your application requests authorization
-var authOptions = {
-  url: 'https://accounts.spotify.com/api/token',
-  headers: {
-    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-  },
-  form: {
-    grant_type: 'client_credentials'
-  },
-  json: true
-};
 
 var config = {
   apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",

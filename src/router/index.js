@@ -13,7 +13,7 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/:cur_year',
+      path: '/:year',
       name: 'yearViz',
       component: yearViz,
       props: true

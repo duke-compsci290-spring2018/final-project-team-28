@@ -261,7 +261,7 @@ export default {
       if(this.curAudio) {
         this.curWeek++;
       }
-      console.log('playing week',this.curWeek);
+      console.log('playing week',this.curWeek,'of year',this.year);
       this.play();
     },
 

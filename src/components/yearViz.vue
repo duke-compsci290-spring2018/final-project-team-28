@@ -36,45 +36,54 @@ var config = {
 var db = firebase.initializeApp(config).database();
 var storageRef = firebase.storage().ref();
 // global reference to remote data
-var yearRef = db.ref('1965');
+//var yearRef = db.ref('1966');
 
 // connect Firebase to Vue
 Vue.use(VueFire);
 export default {
   name: 'yearViz',
+  props: ['year'],
   data () {
     return {
       msg: 'yearViz',
       curWeek: 1,
-      curYear: 1965,
+      curYear: 1966,
       isPlaying: true,
       lastCheckOrAction: 0,
     }
   },
 
-  firebase: {
+  /*firebase: {
     weeks: yearRef
-  },
+  },*/
 
   created(){
+    //this.curYear = this.year;
+    this.$bindAsArray('weeks',db.ref(this.year.toString()))
+    //var yearRef = db.ref(this.curYear.toString());
     this.manageTimer();
   } ,
 
   computed: {
     songRanks: function () {
+      //console.log(this.year);
+      //console.log('new years', this.yearObj);
       console.log(this.weeks);
+      var that = this;
       var songs = [];
       this.weeks.forEach(function(elem){
         songs.push(elem);
         elem['.value'].forEach(function(element){
+          //console.log(that.sanitizeArtist(element.artist));
           if(!(element.mp3 || element.img)) {
             const axios = require('axios')
             axios.get('http://localhost:3000/track/'+element.artist+'/'+element.track)
               .then(response => {
-                //var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
+                var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
                 if(!img){
                   console.log(element.artist,element.track);
                 }
+                var yearRef = db.ref(that.year.toString());
                 yearRef.child(elem['.key']).child(element.rank).update({
                   'img': img,
                   'mp3': response.data.mp3
@@ -139,6 +148,25 @@ export default {
     }
   },
   methods: {
+
+    sanitizeArtist (artist) {
+      var cleanArtist = artist;
+      if(cleanArtist.indexOf('Featuring') != -1){
+        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('Featuring'));
+      }
+      if(cleanArtist.indexOf('&') != -1){
+        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('&'));
+      }
+      if(cleanArtist.indexOf('+') != -1){
+        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('+'));
+      }
+      if(cleanArtist.indexOf(',') != -1){
+        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf(','));
+      }
+      cleanArtist.trim();
+      return cleanArtist;
+    },
+
     drawPlot () {
       //ATTACH TO LIFECYCLE HOOK LATER
       var svg = d3.select("svg");
@@ -170,10 +198,14 @@ export default {
       }
     },
 
+    init () {
+
+    },
+
     manageTimer() {
       var that = this;
       setInterval(function() {
-        console.log('playing week',that.curWeek);
+        console.log('playing week',that.curWeek,'of year',that.year);
         that.play();
         that.curWeek+=1;
       },15000);

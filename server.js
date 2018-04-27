@@ -43,6 +43,23 @@ function postSpotify () {
   }
 });*/
 
+function sanitizeArtist (artist) {
+  var cleanArtist = artist;
+  if(cleanArtist.indexOf('Featuring') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('Featuring'));
+  }
+  if(cleanArtist.indexOf('&') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('&'));
+  }
+  if(cleanArtist.indexOf('+') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('+'));
+  }
+  if(cleanArtist.indexOf(',') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf(','));
+  }
+  cleanArtist.trim();
+  return cleanArtist;
+}
 
 
 app.get('/track/:artist/:name', (req, res, next) => {
@@ -50,8 +67,9 @@ app.get('/track/:artist/:name', (req, res, next) => {
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       var token = body.access_token;
+      var sanitizedArtist = sanitizeArtist(req.params.artist)
       var options = {
-        url: 'https://api.spotify.com/v1/search?q='+ req.params.artist+' ' +req.params.name+' &type=track&market=US&limit=1&offset=0',
+        url: 'https://api.spotify.com/v1/search?q='+ sanitizedArtist+' ' +req.params.name+' &type=track&market=US&limit=1&offset=0',
         headers: {
           'Authorization': 'Bearer ' + token
         },
@@ -60,10 +78,12 @@ app.get('/track/:artist/:name', (req, res, next) => {
       request.get(options, function(error, response, body) {
         //console.log(body.tracks);
         //console.log(body.tracks.items[0].preview_url, body.tracks.items[0].album.images[0].url);
-        if(body.tracks.items[0])
+        try{
           res.json({mp3: body.tracks.items[0].preview_url, img: body.tracks.items[0].album.images[0].url});
-        else{
-          console.log(req.params);
+          console.log('success');
+        }
+        catch(e){
+          console.log('failure',req.params,e);
         }
       });
     }else{

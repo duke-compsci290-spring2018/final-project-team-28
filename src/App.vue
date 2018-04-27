@@ -1,16 +1,38 @@
 <template>
   <div id="app">
-    <yearselector/>
+    <navbar v-bind:currentPlaylist="playlist" v-bind:rightMenu="navbarOptions"/>
     <router-view/>
   </div>
 </template>
 
 <script>
-import yearselector from './components/yearselector'
+import navbar from './components/navbar';
 export default {
   name: 'App',
   components: {
-    yearselector
+    navbar
+  },
+  data () {
+    return {
+      playlist: {
+
+      },
+      navbarOptions: [
+        {
+          display:"Sign In",
+          onPress: function () {
+            console.log("sign in");
+          }
+
+        },
+        {
+          display:"Sign Up",
+          onPress: function () {
+            console.lgo("sign up");
+          }
+        }
+      ]
+    }
   }
 }
 
@@ -23,6 +45,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 100px;
+}
+
+body {
+  margin: 0px;
 }
 </style>

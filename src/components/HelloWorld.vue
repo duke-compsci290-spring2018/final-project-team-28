@@ -1,13 +1,18 @@
 <template>
   <div class="hello">
+    <yearselector/>
     <h1>{{ msg }}</h1>
     
   </div>
 </template>
 
 <script>
+import yearselector from "./yearselector";
 export default {
   name: 'HelloWorld',
+  components: {
+    yearselector
+  },
   data () {
     return {
       msg: 'Welcome 2 sonquest'

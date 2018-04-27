@@ -1,8 +1,10 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    <!-- {{getPlottable}} -->
-    <button @click="drawPlot">test</button>
+    <div id="album-art"></div>
+    {{songRanks}}
+    <button @click="drawPlot">test</button>-->
+    <button @click="manageTimer">play</button>
     <div class="graph"></div>
     <!--<svg width="960" height="500"></svg>-->
   </div>
@@ -37,7 +39,9 @@ export default {
     return {
       msg: 'yearViz',
       curWeek: 1,
-      curYear: 1965
+      curYear: 1965,
+      isPlaying: true,
+      lastCheckOrAction: 0,
     }
   },
 
@@ -45,14 +49,38 @@ export default {
     weeks: yearRef
   },
 
+  created(){
+    this.manageTimer();
+  } ,
+
   computed: {
     songRanks: function () {
+      console.log(this.weeks);
       var songs = [];
       this.weeks.forEach(function(elem){
         songs.push(elem);
-        console.log(elem)
+        elem['.value'].forEach(function(element){
+          if(!(element.mp3 || element.img)) {
+            const axios = require('axios')
+            axios.get('http://localhost:3000/track/'+element.artist+'/'+element.track)
+              .then(response => {
+                //var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
+                if(!img){
+                  console.log(element.artist,element.track);
+                }
+                yearRef.child(elem['.key']).child(element.rank).update({
+                  'img': img,
+                  'mp3': response.data.mp3
+                });
+              })
+              .catch(err => {
+                console.error(err);
+              });            
+          }
+        });
+
       });
-      //console.log('song ranks',songs);
+      console.log('hello?')
       return songs;
     },
     allSongs: function () {
@@ -62,12 +90,13 @@ export default {
           songs.add(element.track);
         });
       });
+
       return songs;
     },
 
     weeksInYear: function () {
       var weeks = [];
-      this.songRanks.forEach(function(elem){
+      this.weeks(function(elem){
         weeks.push(elem['.key']);
       });
       return weeks;
@@ -99,23 +128,6 @@ export default {
         });
       });
       //console.log(allCoords);
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-
-        // use the access token to access the Spotify Web API
-        var token = body.access_token;
-        var options = {
-          url: 'https://api.spotify.com/v1/users/jmperezperez',
-          headers: {
-            'Authorization': 'Bearer ' + token
-          },
-          json: true
-        };
-        request.get(options, function(error, response, body) {
-          console.log(body);
-        });
-      }
-    });
       return allCoords;
     }
   },
@@ -139,11 +151,35 @@ export default {
       .x(function(d) { return x(d.date); })
       .y(function(d) { return y(d.rank); });
     },
-    postData() {
-      return fetch(url, {
+    play () { 
+      for(var i = 1; i<=5; i++){
+        if(this.weeks[this.curWeek]['.value'][i].mp3){
+          var audio = new Audio(this.weeks[this.curWeek]['.value'][i].mp3);
+          document.getElementById('album-art').innnerHTML="<img src='"+this.weeks[this.curWeek]+"'>";
+          audio.play();
+          this.lastCheckOrAction = Math.floor(Date.now()/1000);
+          break;
+        }
+      }
+    },
 
-      })
+    manageTimer() {
+      var that = this;
+      setInterval(function() {
+        console.log('playing week',that.curWeek);
+        that.play();
+        that.curWeek+=1;
+      },15000);
+      /*var that = this;
+      setInterval(function() {
+        if(that.lastCheckOrAction - Math.floor(Date.now()/1000) > 15){
+          that.lastCheckOrAction += 15;
+          that.curWeek += 1;
+          that.play();
+        }
+      }, 1000);*/
     }
+
   }
 }
 </script>

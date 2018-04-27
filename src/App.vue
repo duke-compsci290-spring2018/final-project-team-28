@@ -47,4 +47,8 @@ export default {
   color: #2c3e50;
   margin-top: 100px;
 }
+
+body {
+  margin: 0px;
+}
 </style>

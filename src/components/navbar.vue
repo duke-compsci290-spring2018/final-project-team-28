@@ -1,19 +1,17 @@
 <template>
-  <div class="navbar">
-    <div id="navbar-left" class="subbar">
-      <img id="logo-pic" class="navbar-left-el" src="../assets/sqLogo.png" alt="sonquest logo"/>
-      <router-link tag="a" :to='"/"' class="navbar-left-el">sonquest</router-link>
-    </div>
-    <div id="navbar-right" class="subbar">
-      <ul>
-        <li v-for="i in rightMenu">
-          <a>{{i.display}}</a>
+  <nav class="navbar sticky-top justify-content-between navbar-dark bg-dark">
+    <router-link tag="a" :to='"/"' class="navbar-brand sonquest-brand">
+      <img id="logo-pic" class="img-fluid" src="../assets/sqLogo.png" alt="sonquest logo"/>
+      SonQuest
+    </router-link>
+    <div class="">
+      <ul class="mb-0">
+        <li class="nav-item d-inline-block" v-for="i in rightMenu">
+          <a class="nav-link sonquest-link" v-on:click="i.onPress()" href>{{i.display}}</a>
         </li>
       </ul>
     </div>
-    <div id="navbar-center" class="subbar">
-    </div>
-  </div>
+  </nav>
 </template>
 
 <script>
@@ -30,16 +28,21 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-a {
-  text-decoration: none;
-  font-size: 50px;
+.sonquest-link:link, .sonquest-link:visited {
+  color: rgba(255,255,255,.75);
 }
 
-.navbar {
-  display:inline-block;
+.sonquest-link:hover, .sonquest-link:active {
+  color: rgba(255,255,255,.50);
+}
+
+.sonquest-brand:link,.sonquest-brand:visited {
+  color: rgba(255,255,255,.75);
+}
+
+.sonquest-navbar {
   background-color: #c2c2c2;
-  width: 100%;
-  height: 100px;
+  height: 60px;
   position:fixed;
   top:0;
   left:0;
@@ -47,37 +50,8 @@ a {
   margin:auto;
 }
 
-ul {
-  text-decoration: none;
-  margin: 0px;
-  padding: 0px;
-}
-
-li {
-  display: inline-block;
-  margin-right: 20px;
-}
-
-.subbar {
-  height: 100px;
-}
-
-#navbar-center {
-  width: 50%;
-  margin-right: 25%;
-  margin-left: 25%;
-}
-
-#navbar-left {
-  float: left;
-}
-
-#navbar-right {
-  float: right;
-}
-
 #logo-pic {
-  max-height: 80px;
+  max-height: 50px;
   padding: 5px;
 }
 

@@ -1,8 +1,9 @@
 <template>
   <div id="player">
     <div>
-      <h1>{{$root.$data.sharedPlayerState.currentSong}}</h1>
-      <h2>{{$root.$data.sharedPlayerState.currentArtist}}</h2>
+      <h2>{{curSong}}</h2>
+      <h3>By: {{curArtist}}</h3>
+      <h4>Week: {{curWeek}}</h4>
     </div>
     <div>
       <button id="button-prev" v-on:click="controls.back()"></button>
@@ -16,7 +17,7 @@
 <script>
   export default {
     name:"PlayerControl",
-    props:['controls','isPlaying'],
+    props:['controls','isPlaying','curWeek','curSong','curArtist'],
     methods: {
     }
   }

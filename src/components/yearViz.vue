@@ -2,7 +2,7 @@
   <div class="yearViz">
     <h1 id="title">yearViz</h1>
     <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
-    <playerControl v-bind:class="{sticky:stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying"></playerControl>
+    <playerControl v-bind:class="{sticky:stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
     <div v-bind:class="{'pt-5':stickControl}">
       {{songRanks}}
       <button @click="drawPlot">test</button>-->
@@ -49,8 +49,6 @@ export default {
     clearInterval(this.intervalID);
     document.removeEventListener('scroll', this.handleScroll);
     this.curAudio.pause();
-    this.$root.$data.sharedPlayerState.currentSong = '';
-    this.$root.$data.sharedPlayerState.currentArtist = '';
     next();
   },
   data () {
@@ -236,6 +234,18 @@ export default {
         album:song.img,
         track:song.track
       }
+    },
+
+    curWeekDate: function () {
+      return this.getPlayedSong(this.curWeek).week;
+    },
+
+    curTrackName: function () {
+      return this.getPlayedSong(this.curWeek).track;
+    },
+
+    curArtistName: function () {
+      return this.getPlayedSong(this.curWeek).artist;
     }
   },
   methods: {
@@ -281,8 +291,6 @@ export default {
       for(var i = 1; i<=5; i++){
         if(this.weeks[this.curWeek]['.value'][i].mp3){
           const newTrack = this.weeks[this.curWeek]['.value'][i];
-          this.$root.$data.sharedPlayerState.currentSong = newTrack.track;
-          this.$root.$data.sharedPlayerState.currentArtist = newTrack.artist;
           if(this.curAudio && newTrack.track != this.curTrack) {
             this.curAudio.pause();
           }
@@ -342,6 +350,9 @@ export default {
 
     getPlayedSong(week) {
       var song;
+      if (this.weeks[week]===undefined) {
+        return {};
+      }
       for(var i = 1; i<=5; i++){
         if(this.weeks[week]['.value'][i].mp3){
           song = this.weeks[week]['.value'][i];
@@ -390,7 +401,7 @@ a {
 }
 .sticky{
   position:fixed;
-  top:100px;
+  top:75px;
   width:100%;
 }
 .pad-top {

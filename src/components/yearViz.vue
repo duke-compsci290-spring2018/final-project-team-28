@@ -1,18 +1,21 @@
 <template>
   <div class="yearViz">
-    <h1>yearViz</h1>
+    <h1 id="title">yearViz</h1>
     <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
-    <div id="album-art"></div>
-    {{songRanks}}
-    <button @click="drawPlot">test</button>-->
-    <button @click="manageTimer">play</button>
-    <div class="graph"></div>
-    <!--<svg width="960" height="500"></svg>-->
+    <playerControl v-bind:class="{sticky:stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying"></playerControl>
+    <div v-bind:class="{'pt-5':stickControl}">
+      {{songRanks}}
+      <button @click="drawPlot">test</button>-->
+      <button @click="manageTimer">play</button>
+      <div class="graph"></div>
+      <!--<svg width="960" height="500"></svg>-->
+    </div>
   </div>
 </template>
 
 <script>
 import playerView from './playerView';
+import PlayerControl from './playerControl';
 var billboard = require('billboard-top-100').getChart;
 import Vue from 'vue'
 var d3 = require('d3')
@@ -39,7 +42,16 @@ export default {
   name: 'yearViz',
   props: ['year'],
   components: {
-    playerView
+    playerView,
+    PlayerControl
+  },
+  beforeRouteLeave (to, from, next) {
+    clearInterval(this.intervalID);
+    document.removeEventListener('scroll', this.handleScroll);
+    this.curAudio.pause();
+    this.$root.$data.sharedPlayerState.currentSong = '';
+    this.$root.$data.sharedPlayerState.currentArtist = '';
+    next();
   },
   data () {
     return {
@@ -51,6 +63,48 @@ export default {
       isPlaying: true,
       lastCheckOrAction: 0,
       intevalID: null,
+      startTime: null,
+      stickControl: false,
+      remaining: 15,
+      playerControls:{
+        back: ()=>{
+          clearInterval(this.intervalID);
+          this.curWeek--;
+          if(this.curWeek < 0) {
+            this.curWeek = 0;
+          }
+          this.curTrack = '';
+          this.play();
+          this.intervalID = setInterval(()=>{
+            this.step();
+          },15000)
+        },
+        forward: ()=>{
+          clearInterval(this.intervalID);
+          this.curWeek++;
+          if(this.curWeek >= this.weeks.len) {
+            this.curWeek = this.weeks.len - 1;
+          }
+          this.curTrack = '';
+          this.play();
+          this.intervalID = setInterval(()=>{
+            this.step();
+          },15000)
+        },
+        pause: ()=>{
+          this.curAudio.pause();
+          clearInterval(this.intervalID);
+          this.remaining = new Date() - this.startTime;
+          this.isPlaying = false;
+        },
+        resume: ()=>{
+          this.curAudio.play();
+          this.intervalID = setInterval(()=>{
+            this.step();
+          },15000);
+          this.isPlaying = true;
+        }
+      }
     }
   },
 
@@ -59,14 +113,14 @@ export default {
   },*/
 
   created(){
+    document.addEventListener('scroll', this.handleScroll);
     this.$bindAsArray('weeks',db.ref(this.year.toString()))
-    this.manageTimer();
     this.startLifeCycle();
   },
 
   computed: {
     songRanks: function () {
-      console.log(this.weeks[0]);
+      // console.log(this.weeks[0]);
       var songs = [];
       var that = this;
       this.weeks.forEach(function(elem){
@@ -143,7 +197,7 @@ export default {
 
     lastTrack: function () {
       const week = this.curWeek - 1;
-      if (week < 1 || this.weeks[week]===undefined) {
+      if (week < 0 || this.weeks[week]===undefined) {
         return {
           album:'',
           track:''
@@ -227,6 +281,8 @@ export default {
       for(var i = 1; i<=5; i++){
         if(this.weeks[this.curWeek]['.value'][i].mp3){
           const newTrack = this.weeks[this.curWeek]['.value'][i];
+          this.$root.$data.sharedPlayerState.currentSong = newTrack.track;
+          this.$root.$data.sharedPlayerState.currentArtist = newTrack.artist;
           if(this.curAudio && newTrack.track != this.curTrack) {
             this.curAudio.pause();
           }
@@ -238,8 +294,12 @@ export default {
             break;
           }
           this.curTrack = newTrack.track;
-          this.curAudio = new Audio(newTrack.mp3);
-          document.getElementById('album-art').innnerHTML="<img src='"+this.weeks[this.curWeek]+"'>";
+          if(this.curAudio===null) {
+            this.curAudio = new Audio(newTrack.mp3);
+          } else {
+            this.curAudio.src = newTrack.mp3;
+            this.curAudio.currentTime = 0;
+          }
           this.curAudio.play();
           this.lastCheckOrAction = Math.floor(Date.now()/1000);
           break;
@@ -247,11 +307,8 @@ export default {
       }
     },
 
-    init () {
-
-    },
-
     manageTimer() {
+      this.startTime = new Date();
       this.intervalID = setInterval(()=>{
         this.step();
       },15000);
@@ -260,6 +317,12 @@ export default {
     step() {
       if(this.curAudio) {
         this.curWeek++;
+      }
+      if (this.curWeek === this.weeks.len) {
+        this.done();
+        this.curAudio.pause;
+        clearInterval(this.intervalID);
+        return;
       }
       console.log('playing week',this.curWeek,'of year',this.year);
       this.play();
@@ -286,6 +349,20 @@ export default {
         }
       }
       return song;
+    },
+
+    handleScroll () {
+      var player = document.getElementById('player');
+      if(window.pageYOffset >= player.offsetHeight + 60) {
+        this.stickControl = true;
+      }
+      else {
+        this.stickControl = false;
+      }
+    },
+
+    done () {
+      //TODO something
     }
 
   }
@@ -294,6 +371,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#title {
+  height:50px;
+}
 h1, h2 {
   font-weight: normal;
 }
@@ -307,5 +387,13 @@ li {
 }
 a {
   color: #42b983;
+}
+.sticky{
+  position:fixed;
+  top:100px;
+  width:100%;
+}
+.pad-top {
+  padding-top:20%;
 }
 </style>

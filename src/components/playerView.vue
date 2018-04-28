@@ -1,26 +1,23 @@
 <template>
-  <div id="player">
-    <div id="left-album" class="image-container">
-      <img class="album-image" v-bind:src="prevSong.album" v-bind:alt="prevSong.track"/>
+  <div id="player" class= "container-fluid">
+    <div class="row">
+      <div class="col-4 low-opacity pl-0 pr-0">
+        <img class="img-fluid" v-bind:src="prevSong.album" v-bind:alt="prevSong.track"/>
+      </div>
+      <div class="col-4 pl-0 pr-0">
+        <img class="img-fluid mh-50" v-bind:src="curSong.album" v-bind:alt="curSong.track"/>
+      </div>
+      <div class="col-4 low-opacity pl-0 pr-0">
+        <img class="img-fluid" v-bind:src="nextSong.album" v-bind:alt="nextSong.track"/>
+      </div>
     </div>
-    <div id="center-album" class="image-container">
-      <img class="album-image" v-bind:src="curSong.album" v-bind:alt="curSong.track"/>
-    </div>
-    <div id="right-album" class="image-container">
-      <img class="album-image" v-bind:src="nextSong.album" v-bind:alt="nextSong.track"/>
-    </div>
-    <PlayerControl/>
   </div>
 </template>
 
 <script>
-  import PlayerControl from './playerControl';
   export default {
     name:"playerView",
-    props:['prevSong', 'curSong', 'nextSong', 'playerMethods'],
-    components: {
-      PlayerControl
-    },
+    props:['prevSong', 'curSong', 'nextSong'],
     data () {
       return {
         leftAlbum:'',
@@ -36,26 +33,7 @@
     background-color: #000;
   }
 
-  #left-album {
-    float:left;
-  }
-
-  #right-album {
-    float:right;
-  }
-
-  #center-album {
-  }
-
-  .image-container {
-    display:inline-block;
-    width: 33%;
-    padding: 0px;
-    margin: 0px;
-  }
-
-  .album-image {
-    padding: 0px;
-    margin: 0px;
+  .low-opacity {
+    opacity: .3;
   }
 </style>

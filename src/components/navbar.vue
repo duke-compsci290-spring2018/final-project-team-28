@@ -12,22 +12,17 @@
       </ul>
     </div>
     <div id="navbar-center" class="subbar">
-      <playerControl v-if="currentPlaylist!=null&&currentPlaylist!=undefined&&currentPlaylist.len>0"/>
     </div>
   </div>
 </template>
 
 <script>
-import PlayerControl from "./playerControl";
 export default {
   name: 'NavBar',
-  components: {
-    PlayerControl
-  },
-  props: ['currentPlaylist', 'rightMenu'],
+  props: ['rightMenu'],
   data () {
     return {
-      msg: 'Welcome 2 sonquest'
+
     }
   }
 }

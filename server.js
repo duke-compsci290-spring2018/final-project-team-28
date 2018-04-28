@@ -43,15 +43,41 @@ function postSpotify () {
   }
 });*/
 
+function sanitizeArtist (artist) {
+  var cleanArtist = artist;
+  if(cleanArtist.indexOf('Featuring') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('Featuring'));
+  }
+  if(cleanArtist.indexOf('&') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('&'));
+  }
+  if(cleanArtist.indexOf('+') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('+'));
+  }
+  if(cleanArtist.indexOf(',') != -1){
+    cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf(','));
+  }
+  cleanArtist.trim();
+  return cleanArtist;
+}
 
+function sanitizeTrack (track) {
+  var cleanTrack = track;
+  if(cleanTrack.indexOf('/') != -1){
+    cleanTrack = cleanTrack.substring(0,cleanTrack.indexOf('/'));
+  }
+  return cleanTrack;
+}
 
 app.get('/track/:artist/:name', (req, res, next) => {
   console.log(req.params);
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       var token = body.access_token;
+      var sanitizedArtist = sanitizeArtist(req.params.artist);
+      var sanitizedTrack = sanitizeTrack(req.params.name);
       var options = {
-        url: 'https://api.spotify.com/v1/search?q='+ req.params.artist+' ' +req.params.name+' &type=track&market=US&limit=1&offset=0',
+        url: 'https://api.spotify.com/v1/search?q='+ sanitizedArtist+' ' +sanitizedTrack+' &type=track&market=US&limit=1&offset=0',
         headers: {
           'Authorization': 'Bearer ' + token
         },
@@ -60,14 +86,18 @@ app.get('/track/:artist/:name', (req, res, next) => {
       request.get(options, function(error, response, body) {
         //console.log(body.tracks);
         //console.log(body.tracks.items[0].preview_url, body.tracks.items[0].album.images[0].url);
-        if(body.tracks.items[0])
+        if(body && body.tracks && body.tracks.items[0]){
           res.json({mp3: body.tracks.items[0].preview_url, img: body.tracks.items[0].album.images[0].url});
+        }
         else{
-          console.log(req.params);
+          console.log('failure',req.params);
         }
       });
-    }else{
+
+    }
+    else{
       console.log('error', req.params);
+      res.json({mp3: '', img: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png'});
     }
   });
 	//res.json({response: x});

@@ -1,23 +1,29 @@
 <template>
   <div class="yearViz">
     <h1>yearViz</h1>
-    <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
     <div id="album-art"></div>
-    {{songRanks}}
-    <button @click="drawPlot">test</button>-->
+    <button @click="drawPlot">test</button>
     <button @click="manageTimer">play</button>
     <div class="graph"></div>
+    <!--{{songRanks}}
+    {{getPlottable}}-->
     <!--<svg width="960" height="500"></svg>-->
   </div>
 </template>
 
 <script>
-import playerView from './playerView';
 var billboard = require('billboard-top-100').getChart;
 import Vue from 'vue'
 var d3 = require('d3')
 var VueFire = require('vuefire')
 var firebase = require('firebase')
+var request = require('request'); // "Request" library
+
+var client_id = 'd556205db80d40ceae86e67253b69898'; // Your client id
+var client_secret = '7a98e8d42f0944ecb2aef2d72dc53745'; // Your secret
+
+// your application requests authorization
+
 
 var config = {
   apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",
@@ -38,19 +44,13 @@ Vue.use(VueFire);
 export default {
   name: 'yearViz',
   props: ['year'],
-  components: {
-    playerView
-  },
   data () {
     return {
       msg: 'yearViz',
-      curWeek: 0,
-      curYear: 1965,
-      curAudio: null,
-      curTrack: '',
+      curWeek: 1,
+      curYear: 1966,
       isPlaying: true,
       lastCheckOrAction: 0,
-      intevalID: null,
     }
   },
 
@@ -59,38 +59,49 @@ export default {
   },*/
 
   created(){
+    //this.curYear = this.year;
     this.$bindAsArray('weeks',db.ref(this.year.toString()))
+    //
+    //var yearRef = db.ref(this.curYear.toString());
     this.manageTimer();
-    this.startLifeCycle();
-  },
+  } ,
 
   computed: {
     songRanks: function () {
-      console.log(this.weeks[0]);
-      var songs = [];
+      //console.log(this.year);
+      //console.log('new years', this.yearObj);
+      //console.log(this.weeks);
       var that = this;
+      var songs = [];
       this.weeks.forEach(function(elem){
         songs.push(elem);
         elem['.value'].forEach(function(element){
           //console.log(that.sanitizeArtist(element.artist));
-          if(!(element.mp3 || element.img)) {
+          if((!(element.mp3 || element.img) || (!element.mp3 && element.rank == 5)) && !element.cached) {
+            console.log('caching',element.track,elem['.key']);
             const axios = require('axios')
             axios.get('http://localhost:3000/track/'+element.artist+'/'+element.track)
               .then(response => {
                 var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
+                var mp3 = response.data.mp3;
+                if(element.rank == 5 && !response.data.mp3){
+                  mp3 = "https://duke-compsci290-spring2018.github.io/final-project-team-28/blank.mp3";
+                }
                 var yearRef = db.ref(that.year.toString());
                 yearRef.child(elem['.key']).child(element.rank).update({
                   'img': img,
-                  'mp3': response.data.mp3
+                  'mp3': mp3,
+                  'cached': true
                 });
               })
               .catch(err => {
                 console.error(err);
-              });
+              });            
           }
         });
 
       });
+      //console.log('hello?')
       return songs;
     },
     allSongs: function () {
@@ -106,82 +117,39 @@ export default {
 
     weeksInYear: function () {
       var weeks = [];
-      this.weeks(function(elem){
+      this.weeks.forEach(function(elem){
         weeks.push(elem['.key']);
       });
       return weeks;
     },
 
     getPlottable: function () {
+      var colors = ["#8b8b7a","#9fb6cd","#ffa500","#ffa07a","#292929","#ff7f00","#eeee00","#4169e1","#c1ffc1","#b8860b","#cdc9c9","#bc8f8f","#c1cdcd","#ee9a49","#4682b4","#ee3a8c","#ee00ee","#9acd32","#7f7f7f","#ff4040","#c4c4c4","#7b68ee","#7a8b8b","#eea9b8","#ff69b4","#54ff9f","#483d8b","#b5b5b5","#00cdcd","#ededed","#6e8b3d","#595959","#9a32cd","#66cd00","#f5fffa","#6e6e6e","#0000ee","#68838b","#7a67ee","#ababab","#4f4f4f","#4a4a4a","#ffb6c1","#cd5555","#e0ffff","#8b5a00","#fff0f5","#1874cd","#6e7b8b","#eed5b7","#20b2aa","#deb887","#a2b5cd","#00ffff","#da70d6","#eed8ae","#b0e2ff","#5c5c5c","#ee8262","#eee8aa","#000000","#eedd82","#050505","#ee7942","#ffe7ba","#8b4500","#fff68f","#ffe4b5","#5d478b","#db7093","#cdc9a5","#d02090","#778899","#969696","#cdc0b0","#8deeee","#ee6a50","#cd8c95","#698b22","#ff8c00","#ffb5c5","#8b2252","#636363","#cd950c","#b9d3ee","#8470ff","#76ee00","#3cb371","#8b3e2f","#5f9ea0","#c1cdc1","#ee4000","#cd9b9b","#9bcd9b","#eeb4b4","#eee0e5","#cdc5bf","#ee82ee","#00cd66","#4eee94","#98f5ff","#cd8162","#ff7f24","#575757","#104e8b","#009acd","#ffe4c4","#d8bfd8","#66cdaa","#5e5e5e","#00b2ee","#00f5ff","#e6e6fa","#551a8b","#ba55d3","#556b2f","#d1d1d1","#8b4513","#e0eee0","#ff00ff","#2e8b57","#98fb98","#8b864e","#cd8500","#36648b","#4f94cd","#363636","#8b7d7b","#7d7d7d","#6c7b8b","#7cfc00","#a52a2a","#e5e5e5","#ee30a7","#97ffff","#8b2500","#eecbad","#8b8378","#d15fee","#ee6aa7","#53868b","#f4a460","#b22222","#ffff00","#c7c7c7","#9f79ee","#8b475d","#add8e6","#eec900","#6ca6cd","#303030","#cdad00","#999999","#87ceff","#b23aee","#8b7d6b","#ffe1ff","#ffefd5","#cdc8b1","#d3d3d3","#191970","#f5f5f5","#8b3a62","#cd853f","#8b7500","#404040","#00ee76","#ee7ae9","#f2f2f2","#4876ff","#daa520","#cd5c5c","#141414","#87ceeb","#0f0f0f","#00ff7f","#8b5a2b","#454545","#8b2323","#fcfcfc","#474747","#d6d6d6","#8b8970","#cd5b45","#cd6839","#b4cdcd","#ee0000","#fa8072","#3a5fcd","#e9967a","#cd6090","#8b3a3a","#8b1a1a","#96cdcd","#ab82ff","#8b0a50","#00ee00","#8b4c39","#bfbfbf","#00fa9a"];
+      var cCount = 0;
+      var inWeek = false;
       var sRanks = this.songRanks;
       var aSongs = this.allSongs;
       var allCoords = [];
+      var formatDate = d3.time.format('%Y-%m-%d');
       aSongs.forEach(function(elem){
-        var songPlot = {};
-        songPlot['track']=elem;
+        var songPlot = [];
         sRanks.forEach(function(element){
           element['.value'].forEach(function(top5Song){
             if(top5Song.track == elem){
-              //console.log('got one',elem);
-              songPlot[element['.key']] = top5Song.rank+1;
+              songPlot.push({'x':formatDate.parse(element['.key']), 'y': top5Song.rank, 'color': colors[cCount%200], 'track': elem});
+              inWeek = true;
             }
           });
+          if(!inWeek){
+            songPlot.push({'x':formatDate.parse(element['.key']), 'y': 10, 'color': colors[cCount%200], 'track': elem});
+          }
+          inWeek = false;
         });
         allCoords.push(songPlot);
+        cCount++;
       });
-      var weeks = this.weeksInYear;
-      allCoords.forEach(function(elem){
-        weeks.forEach(function(element){
-          if(!elem[element]){
-            elem[element]=100;
-          }
-        });
-      });
-      //console.log(allCoords);
+      //console.log('allCoords',allCoords);
       return allCoords;
-    },
-
-    lastTrack: function () {
-      const week = this.curWeek - 1;
-      if (week < 1 || this.weeks[week]===undefined) {
-        return {
-          album:'',
-          track:''
-        };
-      }
-      var song = this.getPlayedSong(week);
-      return {
-        album:song.img,
-        track:song.track
-      }
-    },
-
-    currentTrack: function () {
-      if(this.weeks[this.curWeek]===undefined) {
-        return {
-          album:'',
-          track:''};
-      }
-      var song = this.getPlayedSong(this.curWeek);
-      return {
-        album:song.img,
-        track:song.track
-      }
-    },
-
-    nextTrack: function () {
-      const week = this.curWeek + 1;
-      if (week > this.weeks.len || this.weeks[week]===undefined) {
-        return {
-          album:'',
-          track:''
-        };
-      }
-      var song = this.getPlayedSong(week);
-      return {
-        album:song.img,
-        track:song.track
-      }
     }
   },
   methods: {
@@ -205,42 +173,137 @@ export default {
     },
 
     drawPlot () {
-      //ATTACH TO LIFECYCLE HOOK LATER
-      var svg = d3.select("svg");
-      var margin = {top: 20, right: 80, bottom: 30, left: 50};
-      var width = svg.attr("width") - margin.left - margin.right;
-      var height = svg.attr("height") - margin.top - margin.bottom;
-      var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      //IDEA: USe 1-52 as x labels instead of using weeks. Numeric instead of times
+      //IDEA: JUST TRANSLATE A LINE GRPAH
+      console.log(this.songRanks);
+      var data  = this.getPlottable;
+      console.log('data',data);
+      var margin = {top: 20, right: 30, bottom: 50, left: 80};
+      var width = 960 - margin.left - margin.right;
+      var height = 500 - margin.top - margin.bottom;
 
-      var parseTime = d3.timeParse('%Y-%m-%d');
+      var formatDate = d3.time.format('%Y-%m-%d');
+      console.log('1', this.weeksInYear[0], this.weeksInYear[4]);
+      var x = d3.time.scale()
+        .domain([formatDate.parse(this.weeksInYear[0]), formatDate.parse(this.weeksInYear[4])])
+        .range([0,width])
 
-      var x = d3.scaleTime().range([0, width]);
-      var y = d3.scaleLinear().range([height, 0]);
-      var z = d3.scaleOrdinal(d3.schemeCategory20c);
+      var y = d3.scale.linear()
+        .domain([5.5,0])
+        .range([height,0])
 
-      var line = d3.line()
-      .curve(d3.curveBasis)
-      .x(function(d) { return x(d.date); })
-      .y(function(d) { return y(d.rank); });
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .ticks(5)
+        .tickSize(-height)
+        .tickPadding(25)
+        .tickSubdivide(true)
+        .orient('bottom');
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickSize(-width)
+        .tickFormat(d3.format('d'))
+        .tickPadding(25)
+        .tickSubdivide(true)
+        .orient('left');
+
+      var zoom = d3.behavior.zoom().scaleExtent([1,1])
+        .x(x)
+        .on('zoom',zoomed);
+
+      var svg = d3.select('body').append('svg')
+        .call(zoom)
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + height + ')')
+        .call(xAxis);
+
+      svg.append('g')
+        .attr('class', 'y axis')
+        .call(yAxis);
+
+      svg.append('g')
+        .attr('class', 'y axis')
+        .append('text')
+        .attr('class', 'y-axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', (-margin.left) + 10)
+        .attr('x', -height/2)
+        .text('Rank');
+
+      svg.append('clipPath')
+        .attr('id', 'clip')
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height)
+
+      var line = d3.svg.line()
+        .interpolate('linear')
+        .x(function(d) {return x(d.x);})
+        .y(function(d) {return y(d.y);});
+
+      svg.selectAll('.line')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('class', 'line')
+        .attr('clip-path', 'url(#clip)')
+        .attr('stroke', function(d){
+          return d[0].color;
+        })
+        .attr('d', line);
+
+
+      var points = svg.selectAll('.dots')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('class', 'dots')
+        .attr('clip-path', 'url(#clip)');
+
+      points.selectAll('.dot')
+        .data(function(d, index){
+          //console.log(d.index);
+          var pntParams = [];
+          d.forEach(function(point, i){
+            pntParams.push({'index': index, 'point': point});
+          });
+          return pntParams
+        })
+        .enter()
+        .append('circle')
+        .attr('class', 'dot')
+        .attr('r', 2.7)
+        .attr('fill', function(d){
+          return d.point.color;
+        })
+        .attr('transform', function(d) {
+          return 'translate(' + x(d.point.x) + ',' + y(d.point.y) + ')';
+        });
+
+        function zoomed () {
+            svg.select(".x.axis").call(xAxis);
+            svg.select(".y.axis").call(yAxis);   
+            svg.selectAll('path.line').attr('d', line);  
+           
+            points.selectAll('circle').attr("transform", function(d) { 
+              return "translate(" + x(d.point.x) + "," + y(d.point.y) + ")"; }
+            ); 
+        }
     },
     play () { 
       for(var i = 1; i<=5; i++){
         if(this.weeks[this.curWeek]['.value'][i].mp3){
-          const newTrack = this.weeks[this.curWeek]['.value'][i];
-          if(this.curAudio && newTrack.track != this.curTrack) {
-            this.curAudio.pause();
-          }
-          else if (newTrack.track === this.curTrack) {
-            if (Math.round(this.curAudio.currentTime)>=30) {
-              this.curAudio.currentTime = 0;
-            }
-            this.lastCheckOrAction = Math.floor(Date.now()/1000);
-            break;
-          }
-          this.curTrack = newTrack.track;
-          this.curAudio = new Audio(newTrack.mp3);
+          var audio = new Audio(this.weeks[this.curWeek]['.value'][i].mp3);
           document.getElementById('album-art').innnerHTML="<img src='"+this.weeks[this.curWeek]+"'>";
-          this.curAudio.play();
+          audio.play();
+          console.log('track',this.weeks[this.curWeek]['.value'][i]);
           this.lastCheckOrAction = Math.floor(Date.now()/1000);
           break;
         }
@@ -252,40 +315,20 @@ export default {
     },
 
     manageTimer() {
-      this.intervalID = setInterval(()=>{
-        this.step();
+      var that = this;
+      setInterval(function() {
+        console.log('playing week',that.curWeek,'of year',that.year);
+        that.play();
+        that.curWeek+=1;
       },15000);
-    },
-
-    step() {
-      if(this.curAudio) {
-        this.curWeek++;
-      }
-      console.log('playing week',this.curWeek,'of year',this.year);
-      this.play();
-    },
-
-    startLifeCycle() {
-      if (this.weeks[this.curWeek]===undefined) {
-        setTimeout(()=>{
-          this.startLifeCycle();
-        },500)
-      }
-      else {
-        this.step();
-        this.manageTimer();
-      }
-    },
-
-    getPlayedSong(week) {
-      var song;
-      for(var i = 1; i<=5; i++){
-        if(this.weeks[week]['.value'][i].mp3){
-          song = this.weeks[week]['.value'][i];
-          break;
+      /*var that = this;
+      setInterval(function() {
+        if(that.lastCheckOrAction - Math.floor(Date.now()/1000) > 15){
+          that.lastCheckOrAction += 15;
+          that.curWeek += 1;
+          that.play();
         }
-      }
-      return song;
+      }, 1000);*/
     }
 
   }
@@ -294,18 +337,52 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+body {
+          font: 10px sans-serif;
+          margin: 50px;
+        }
+         
+        .grid .tick {
+            stroke: lightgrey;
+            opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+         
+        .grid path {
+            stroke-width: 0;
+        }
+         
+        .axis path {
+            fill: none;
+            stroke: #bbb;
+            shape-rendering: crispEdges;
+        }
+         
+        .axis text {
+            fill: #555;
+        }
+         
+        .axis line {    
+            stroke: #e7e7e7;
+            shape-rendering: crispEdges;
+        }
+         
+        .axis .axis-label {
+            font-size: 14px;
+        }
+         
+        .line {
+            fill: none;
+            stroke-width: 1.5px;
+        }
+         
+        .dot {
+            stroke: transparent;
+            stroke-width: 10px;  
+            cursor: pointer;
+        }
+         
+        .dot:hover {
+            stroke: rgba(68, 127, 255, 0.3);
+        }
 </style>

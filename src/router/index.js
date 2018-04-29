@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import yearViz from '@/components/yearViz'
 import userPage from '@/components/userPage'
+import playlistViz from '@/components/playlistViz'
 
 Vue.use(Router)
 
@@ -23,6 +24,12 @@ export default new Router({
       path: '/user/:username',
       name: 'userPage',
       component: userPage,
+      props: true
+    },
+    {
+      path: '/:username/:listIndex/:playlist',
+      name: 'userPlaylist',
+      component: playlistViz,
       props: true
     }
   ]

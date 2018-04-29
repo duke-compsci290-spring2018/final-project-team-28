@@ -4,7 +4,8 @@
       <playlistEditor v-if="songlistRef!=null" v-on:doneEdit="doneEditting()" v-bind:songRef="songlistRef" v-bind:name="edittingPlaylist"></playlistEditor>
       <h1 class="pt-5 pb-5">Hello {{firstname}}</h1>
       <div class="playlist-container">
-        <h2 class="pt-3 pb-5">{{firstname}}'s Playlists</h2>
+        <h2 class="pt-3 pb-4">{{firstname}}'s Playlists</h2>
+        <button v-on:click="downloadPlaylist(l)" class="btn btn-default mb-3">Download My Playlists</button>
         <div class="playlist-list container">
           <ul>
             <li class="row">
@@ -31,7 +32,7 @@
                   <div class="row">
                   <button v-on:click="deletePlaylist(l)" class="btn btn-default col-2 mr-3">&times;</button>
                   <button v-on:click="editPlaylist(l)" class="btn btn-default col-2 mr-3">Edit</button>
-                  <button v-on:click="playPlaylist" class="btn btn-default col-2">Play</button>
+                  <button v-on:click="playPlaylist(l)" class="btn btn-default col-2">Play</button>
                   <div class="d-inline-block col-2">
 					          <button v-if="index!=0" v-on:click="moveUp(l)" class="btn btn-default d-block arrow-btn">&uarr;</button>
 					          <button v-if="index!=playlists.length-1" v-on:click="moveDown(l)" class="btn btn-default d-block arrow-btn">&darr;</button>
@@ -63,8 +64,7 @@ export default {
     playlistEditor:playlistEditor
   },
   created() {
-    this.playListRef = db.ref('users/' + this.username + '/playlists');
-    this.$bindAsArray('playlists', this.playListRef);
+    this.$bindAsArray('playlists', db.ref('users/' + this.username + '/playlists'));
   },
   beforeRouteEnter: (to, from, next) => {
     next(vm => {
@@ -83,7 +83,7 @@ export default {
       lastname: this.$root.$data.user.lastname,
       admin: this.$root.$data.user.admin,
       newPlayListName: '',
-      playlistRef: db.ref('users/' + this.username + '/playlists'),
+      playlistRef:db.ref('users/' + this.username + '/playlists'),
       status: '',
       songlistRef: null,
       edittingPlaylist: ''
@@ -122,13 +122,13 @@ export default {
       if (!response && this.playlists.filter(l => l.name === list.name)) {
         return;
       } else {
-        this.playListRef.child(list['.key']).update({
+        this.playlistRef.child(list['.key']).update({
           name: response
         });
       }
     },
     playPlaylist(l) {
-
+      this.$router.push( {name:'userPlaylist', params:{username:this.username,listIndex:l['.key'],playlist:l.name}} );
     },
     editPlaylist(l) {
       this.edittingPlaylist = l.name;
@@ -141,8 +141,8 @@ export default {
       delete tempL['.key'];
       const tempTar = Object.assign({}, target);
       delete tempTar['.key'];
-      this.playListRef.child(target['.key']).set(tempL);
-      this.playListRef.child(tempIndex).set(tempTar);
+      this.playlistRef.child(target['.key']).set(tempL);
+      this.playlistRef.child(tempIndex).set(tempTar);
     },
     moveDown(l) {
       const tempIndex = parseInt(l['.key']);
@@ -151,12 +151,15 @@ export default {
       delete tempL['.key'];
       const tempTar = Object.assign({}, target);
       delete tempTar['.key'];
-      this.playListRef.child(target['.key']).set(tempL);
-      this.playListRef.child(tempIndex).set(tempTar);
+      this.playlistRef.child(target['.key']).set(tempL);
+      this.playlistRef.child(tempIndex).set(tempTar);
     },
     doneEditting() {
       this.songlistRef=null;
       this.edittingPlaylist = '';
+    },
+    downloadPlaylist() {
+
     }
   }
 }

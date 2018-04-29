@@ -1,14 +1,9 @@
 <template>
   <div class="yearViz">
-    <h1 id="title">Top Hits of {{year}}</h1>
+    <h1 id="title">{{playlist}}</h1>
     <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
-    <playerControl v-bind:class="{'sticky':stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
-    <div v-bind:class="{'pad-bot':stickControl}">
-      {{songRanks}}
-      <button @click="drawPlot">test</button>-->
-      <button @click="manageTimer">play</button>
-      <div class="graph"></div>
-      <!--<svg width="960" height="500"></svg>-->
+    <playerControl v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
+    <div>
     </div>
   </div>
 </template>
@@ -16,11 +11,12 @@
 <script>
 import playerView from './playerView';
 import PlayerControl from './playerControl';
+var firebase = require('firebase')
 
 var db = firebase.app().database();
 export default {
   name: 'playlistViz',
-  props: ['user', 'playlist'],
+  props: ['username', 'listIndex', 'playlist'],
   components: {
     playerView,
     PlayerControl
@@ -34,25 +30,26 @@ export default {
     }
     next();
   },
+  created(){
+    this.$bindAsArray('songs', db.ref('users/'+this.username+'/playlists/'+this.listIndex+'/songs'));
+    this.startLifeCycle();
+  },
   data () {
     return {
-      curWeek: 0,
-      curYear: 1965,
+      songIndex: 0,
       curAudio: null,
       curTrack: '',
       isPlaying: true,
-      lastCheckOrAction: 0,
       intevalID: null,
       startTime: null,
-      stickControl: false,
       remaining: 15,
-      playerControlOffset: 0,
+      songRef: db.ref('users/'+this.username+'/playlists/'+this.key+'/songs'),
       playerControls:{
         back: ()=>{
           clearInterval(this.intervalID);
-          this.curWeek--;
-          if(this.curWeek < 0) {
-            this.curWeek = 0;
+          this.songIndex--;
+          if(this.songIndex < 0) {
+            this.songIndex = 0;
           }
           this.curTrack = '';
           this.play();
@@ -62,9 +59,9 @@ export default {
         },
         forward: ()=>{
           clearInterval(this.intervalID);
-          this.curWeek++;
-          if(this.curWeek >= this.weeks.length) {
-            this.curWeek = this.weeks.length - 1;
+          this.songIndex++;
+          if(this.songIndex >= this.songs.length) {
+            this.songIndex = this.songs.length - 1;
           }
           this.curTrack = '';
           this.play();
@@ -89,102 +86,16 @@ export default {
     }
   },
 
-  /*firebase: {
-    weeks: yearRef
-  },*/
-
-  created(){
-    document.addEventListener('scroll', this.handleScroll);
-    this.$bindAsArray('weeks',db.ref(this.year.toString()))
-    this.startLifeCycle();
-  },
-
   computed: {
-    songRanks: function () {
-      // console.log(this.weeks[0]);
-      var songs = [];
-      var that = this;
-      this.weeks.forEach(function(elem){
-        songs.push(elem);
-        elem['.value'].forEach(function(element){
-          //console.log(that.sanitizeArtist(element.artist));
-          if(!(element.mp3 || element.img)) {
-            const axios = require('axios')
-            axios.get('http://localhost:3000/track/'+element.artist+'/'+element.track)
-              .then(response => {
-                var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
-                var yearRef = db.ref(that.year.toString());
-                yearRef.child(elem['.key']).child(element.rank).update({
-                  'img': img,
-                  'mp3': response.data.mp3
-                });
-              })
-              .catch(err => {
-                console.error(err);
-              });
-          }
-        });
-
-      });
-      return songs;
-    },
-    allSongs: function () {
-      var songs = new Set();
-      this.weeks.forEach(function(elem){
-        elem['.value'].forEach(function(element){
-          songs.add(element.track);
-        });
-      });
-
-      return songs;
-    },
-
-    weeksInYear: function () {
-      var weeks = [];
-      this.weeks(function(elem){
-        weeks.push(elem['.key']);
-      });
-      return weeks;
-    },
-
-    getPlottable: function () {
-      var sRanks = this.songRanks;
-      var aSongs = this.allSongs;
-      var allCoords = [];
-      aSongs.forEach(function(elem){
-        var songPlot = {};
-        songPlot['track']=elem;
-        sRanks.forEach(function(element){
-          element['.value'].forEach(function(top5Song){
-            if(top5Song.track == elem){
-              //console.log('got one',elem);
-              songPlot[element['.key']] = top5Song.rank+1;
-            }
-          });
-        });
-        allCoords.push(songPlot);
-      });
-      var weeks = this.weeksInYear;
-      allCoords.forEach(function(elem){
-        weeks.forEach(function(element){
-          if(!elem[element]){
-            elem[element]=100;
-          }
-        });
-      });
-      //console.log(allCoords);
-      return allCoords;
-    },
-
     lastTrack: function () {
-      const week = this.curWeek - 1;
-      if (week < 0 || this.weeks[week]===undefined) {
+      const i = this.songIndex - 1;
+      if (i < 0 || this.songs[i]===undefined) {
         return {
           album:'',
           track:''
         };
       }
-      var song = this.getPlayedSong(week);
+      var song = this.songs[i];
       return {
         album:song.img,
         track:song.track
@@ -192,12 +103,12 @@ export default {
     },
 
     currentTrack: function () {
-      if(this.weeks[this.curWeek]===undefined) {
+      if(this.songs[this.songIndex]===undefined) {
         return {
           album:'',
           track:''};
       }
-      var song = this.getPlayedSong(this.curWeek);
+      var song = this.songs[this.songIndex];
       return {
         album:song.img,
         track:song.track
@@ -205,97 +116,52 @@ export default {
     },
 
     nextTrack: function () {
-      const week = this.curWeek + 1;
-      if (week > this.weeks.len || this.weeks[week]===undefined) {
+      const i = this.songIndex + 1;
+      if (i > this.songs.length || this.songs[i]===undefined) {
         return {
           album:'',
           track:''
         };
       }
-      var song = this.getPlayedSong(week);
+      var song = this.songs[i];
       return {
         album:song.img,
         track:song.track
       }
     },
 
-    curWeekDate: function () {
-      return this.getPlayedSong(this.curWeek).week;
-    },
-
     curTrackName: function () {
-      return this.getPlayedSong(this.curWeek).track;
+      if (this.songs[this.songIndex]) {
+        return this.songs[this.songIndex].track;
+      }
+      return '';
     },
 
     curArtistName: function () {
-      return this.getPlayedSong(this.curWeek).artist;
+      if(this.songs[this.songIndex]) {
+        return this.songs[this.songIndex].artist;
+      }
+      return '';
     }
   },
   methods: {
-
-    sanitizeArtist (artist) {
-      var cleanArtist = artist;
-      if(cleanArtist.indexOf('Featuring') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('Featuring'));
-      }
-      if(cleanArtist.indexOf('&') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('&'));
-      }
-      if(cleanArtist.indexOf('+') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('+'));
-      }
-      if(cleanArtist.indexOf(',') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf(','));
-      }
-      cleanArtist.trim();
-      return cleanArtist;
-    },
-
-    drawPlot () {
-      //ATTACH TO LIFECYCLE HOOK LATER
-      var svg = d3.select("svg");
-      var margin = {top: 20, right: 80, bottom: 30, left: 50};
-      var width = svg.attr("width") - margin.left - margin.right;
-      var height = svg.attr("height") - margin.top - margin.bottom;
-      var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-      var parseTime = d3.timeParse('%Y-%m-%d');
-
-      var x = d3.scaleTime().range([0, width]);
-      var y = d3.scaleLinear().range([height, 0]);
-      var z = d3.scaleOrdinal(d3.schemeCategory20c);
-
-      var line = d3.line()
-      .curve(d3.curveBasis)
-      .x(function(d) { return x(d.date); })
-      .y(function(d) { return y(d.rank); });
-    },
     play () { 
-      for(var i = 1; i<=5; i++){
-        if(this.weeks[this.curWeek]['.value'][i].mp3){
-          const newTrack = this.weeks[this.curWeek]['.value'][i];
-          if(this.curAudio && newTrack.track != this.curTrack) {
-            this.curAudio.pause();
-          }
-          else if (newTrack.track === this.curTrack) {
-            if (Math.round(this.curAudio.currentTime)>=30) {
-              this.curAudio.currentTime = 0;
-            }
-            this.lastCheckOrAction = Math.floor(Date.now()/1000);
-            break;
-          }
-          this.curTrack = newTrack.track;
-          if(this.curAudio===null) {
-            this.curAudio = new Audio(newTrack.mp3);
-          } else {
-            this.curAudio.src = newTrack.mp3;
-            this.curAudio.currentTime = 0;
-          }
-          this.curAudio.play();
-          this.lastCheckOrAction = Math.floor(Date.now()/1000);
-          break;
+      const newTrack = this.songs[this.songIndex];
+      if(this.curAudio && newTrack.track != this.curTrack) {
+        this.curAudio.pause();
+      } else if (newTrack.track === this.curTrack) {
+        if (Math.round(this.curAudio.currentTime)>=30) {
+          this.curAudio.currentTime = 0;
         }
       }
+      this.curTrack = newTrack.track;
+      if(this.curAudio===null) {
+        this.curAudio = new Audio(newTrack.mp3);
+      } else {
+        this.curAudio.src = newTrack.mp3;
+        this.curAudio.currentTime = 0;
+      }
+      this.curAudio.play();
     },
 
     manageTimer() {
@@ -307,20 +173,19 @@ export default {
 
     step() {
       if(this.curAudio) {
-        this.curWeek++;
+        this.songIndex++;
       }
-      if (this.curWeek >= this.weeks.length) {
+      if (this.songIndex >= this.songs.length) {
         this.curAudio.pause();
         clearInterval(this.intervalID);
         this.done();
       } else {
-        console.log('playing week',this.curWeek,'of year',this.year);
         this.play();
       }
     },
 
     startLifeCycle() {
-      if (this.weeks[this.curWeek]===undefined) {
+      if (this.songs[this.songIndex]===undefined) {
         setTimeout(()=>{
           this.startLifeCycle();
         },500)
@@ -331,35 +196,8 @@ export default {
       }
     },
 
-    getPlayedSong(week) {
-      var song;
-      if (this.weeks[week]===undefined) {
-        return {};
-      }
-      for(var i = 1; i<=5; i++){
-        if(this.weeks[week]['.value'][i].mp3){
-          song = this.weeks[week]['.value'][i];
-          break;
-        }
-      }
-      return song;
-    },
-
-    handleScroll () {
-      var player = document.getElementById('player');
-      if (!this.stickControl) {
-        this.playerControlOffset = player.offsetTop;
-      }
-      if(window.pageYOffset + window.innerHeight >= this.playerControlOffset + player.offsetHeight) {
-        this.stickControl = true;
-      }
-      else {
-        this.stickControl = false;
-      }
-    },
-
     done () {
-      this.curWeek = 0;
+      this.songIndex = 0;
       this.curAudio = null;
       this.curTrack = '';
       this.$router.push({ name:"HelloWorld" });

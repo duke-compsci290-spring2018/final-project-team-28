@@ -2,9 +2,9 @@
   <div id="player" class="container-fluid">
     <div class="row justify-content-center">
       <div class="col-5 text-left p-2">
-        <h3>{{curSong}}</h3>
-        <h4>By: {{curArtist}}</h4>
-        <h5 class="mb-0">Week: {{curWeek}}</h5>
+        <h3 v-if="curSong">{{curSong}}</h3>
+        <h4 v-if="curArtist">By: {{curArtist}}</h4>
+        <h5 v-if="curWeek" class="mb-0">Week: {{curWeek}}</h5>
       </div>
       <div class="col-2 pt-4">
         <ul class="pl-0 mb-0">

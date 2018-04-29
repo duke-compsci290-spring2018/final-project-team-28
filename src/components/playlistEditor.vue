@@ -66,12 +66,12 @@ export default {
       } else {
         axios.get('http://localhost:3000/track/' + this.searchArtist + '/' + this.searchSong)
           .then(response => {
-            if(response.data.mp3) {
+            if (response.data.mp3) {
               this.songRef.child(this.songs.length).set({
-                track:this.searchSong,
-                artist:this.searchArtist,
-                img:response.data.img,
-                mp3:response.data.mp3
+                track: this.searchSong,
+                artist: this.searchArtist,
+                img: response.data.img,
+                mp3: response.data.mp3
               })
             } else {
               this.status = 'Unable to add song';
@@ -85,17 +85,36 @@ export default {
       }
     },
     deleteSong: function (s) {
-
+      var i = s['.key'];
+      for (i; i < this.songs.length - 1; i++) {
+        const temp = Object.assign({}, this.songs[parseInt(i) + 1]);
+        delete temp['.key'];
+        this.songRef.child(i).set(temp);
+      }
+      this.songRef.child(i).remove();
     },
     moveUp: function (s) {
-
+      const tempIndex = parseInt(s['.key']);
+      const target = this.songs.filter(song => song['.key'] == tempIndex - 1)[0];
+      const tempS = Object.assign({}, s);
+      delete tempS['.key'];
+      const tempTar = Object.assign({}, target);
+      delete tempTar['.key'];
+      this.songRef.child(target['.key']).set(tempS);
+      this.songRef.child(tempIndex).set(tempTar);
     },
     moveDown: function (s) {
-
+      const tempIndex = parseInt(s['.key']);
+      const target = this.songs.filter(song => song['.key'] == tempIndex + 1)[0];
+      const tempS = Object.assign({}, s);
+      delete tempS['.key'];
+      const tempTar = Object.assign({}, target);
+      delete tempTar['.key'];
+      this.songRef.child(target['.key']).set(tempS);
+      this.songRef.child(tempIndex).set(tempTar);
     }
   }
 }
-
 
   
 </script>

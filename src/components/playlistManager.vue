@@ -1,7 +1,7 @@
 <template>
   <div class="playlist-container">
     <h2 class="pt-3 pb-4">{{user}}'s Playlists</h2>
-    <button v-on:click="downloadPlaylists()" class="btn btn-default mb-3">Download My Playlists</button>
+    <button v-on:click="downloadPlaylists()" class="btn btn-default mb-3">Download {{user}}'s Playlists</button>
     <div class="playlist-list container">
       <ul>
         <li class="row">

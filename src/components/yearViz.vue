@@ -218,7 +218,9 @@ export default {
       var song = this.getPlayedSong(this.curWeek);
       return {
         album:song.img,
-        track:song.track
+        track:song.track,
+        artist:song.artist,
+        mp3:song.mp3,
       }
     },
 

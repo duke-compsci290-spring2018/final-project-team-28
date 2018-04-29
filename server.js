@@ -3,8 +3,23 @@ const app = express();
 const cors = require('cors');
 const SpotifyWebApi = require('spotify-web-api-node');
 const request = require('request');
+const firebase = require('firebase')
 
-// Uses the ng built files from the /dist folder
+
+var config = {
+  apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",
+  authDomain: "sonquest-3379c.firebaseapp.com",
+  databaseURL: "https://sonquest-3379c.firebaseio.com",
+  projectId: "sonquest-3379c",
+  storageBucket: "sonquest-3379c.appspot.com",
+  messagingSenderId: "228676657274"
+};
+
+var db = firebase.initializeApp(config).database();
+//var storageRef = firebase.storage().ref();
+var userRef = db.ref('users');
+
+
 app.use(express.static(__dirname + '/dist'));
 app.use(cors())
 
@@ -26,27 +41,10 @@ var x = 0;
 function postSpotify () {
 
 }
-/*request.post(authOptions, function(error, response, body) {
-  if (!error && response.statusCode === 200) {
-    var token = body.access_token;
-    var options = {
-      url: 'https://api.spotify.com/v1/search?q=david%20bowie&type=track&market=US&limit=1&offset=0',
-      headers: {
-        'Authorization': 'Bearer ' + token
-      },
-      json: true
-    };
-    request.get(options, function(error, response, body) {
-      x = body;
-      console.log(body);
-    });
-  }
-});*/
-
 
 
 app.get('/track/:artist/:name', (req, res, next) => {
-  console.log(req.params);
+  console.log('track request', req.params);
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       var token = body.access_token;
@@ -60,17 +58,62 @@ app.get('/track/:artist/:name', (req, res, next) => {
       request.get(options, function(error, response, body) {
         //console.log(body.tracks);
         //console.log(body.tracks.items[0].preview_url, body.tracks.items[0].album.images[0].url);
-        if(body.tracks.items[0])
+        try{
           res.json({mp3: body.tracks.items[0].preview_url, img: body.tracks.items[0].album.images[0].url});
-        else{
-          console.log(req.params);
+        }
+        catch(e){
+          console.log(e, req.params);
+          res.json({mp3:'', img: ''})
         }
       });
     }else{
       console.log('error', req.params);
+      res.json({mp3:'', img: ''})
     }
   });
 	//res.json({response: x});
+});
+
+app.get('/user/:username', (req, res, next) => {
+  var userProfile = {};
+  console.log('user request', req.params);
+  userRef.once('value')
+    .then(function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        //console.log(req.params.username, childSnapshot.key);
+        
+        if(req.params.username == childSnapshot.key){
+          console.log('found user', childSnapshot.key);
+          var userData = childSnapshot.val();
+          userProfile.name = userData.firstname + ' ' + userData.lastname;
+          userProfile.playlists = [];
+          var uPlaylists = userData.playlists;
+          if(uPlaylists){
+            uPlaylists.forEach(function(elem) {
+              var tempList = {}
+              tempList.playlist_name = elem.name
+              tempList.songs = [];
+              if(elem.songs){
+                elem.songs.forEach(function(song){
+                  tempList.songs.push({
+                    'track': song.track,
+                    'artist': song.artist
+                  })
+                });
+              }
+              userProfile.playlists.push(tempList);
+              //console.log(elem.songs);
+            });
+          }
+          console.log(userProfile);
+          res.json(userProfile);
+        }
+        //var key = childSnapshot.key;
+        //console.log(childData);
+      })
+      res.json({response: '400004 not found'});
+    })
+
 });
 // Start the app by listening on the default Heroku port
 app.listen(process.env.PORT || 3000);

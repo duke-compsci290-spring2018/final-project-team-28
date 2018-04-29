@@ -45,10 +45,6 @@ export default {
         admin:!u.admin
       });
     },
-<<<<<<< HEAD
-=======
-
->>>>>>> 1244725c08fec5ea707951e3fe7bc23966b724bc
     downloadPlaylists() {
       axios.get('http://localhost:3000/admindump/')
         .then(response => {

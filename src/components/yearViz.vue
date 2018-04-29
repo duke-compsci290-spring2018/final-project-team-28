@@ -217,15 +217,10 @@ export default {
       }
       var song = this.getPlayedSong(this.curWeek);
       return {
-<<<<<<< HEAD
         img:song.img,
-        track:song.track
-=======
-        album:song.img,
         track:song.track,
         artist:song.artist,
         mp3:song.mp3,
->>>>>>> 1244725c08fec5ea707951e3fe7bc23966b724bc
       }
     },
 

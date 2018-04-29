@@ -36,10 +36,6 @@
     props:['prevSong', 'curSong', 'nextSong'],
     data () {
       return {
-<<<<<<< HEAD
-        leftImg:'',
-        leftAlbumTrack:''
-=======
         leftAlbum:'',
         leftAlbumTrack:'',
         chosenPlaylist: '',
@@ -83,7 +79,6 @@
           userRef.child(this.$root.$data.user.username).child('playlists').child(playlistNumber).child('songs').child(0).set(this.curSong);
         }
         this.chosenPlaylist = '';
->>>>>>> 1244725c08fec5ea707951e3fe7bc23966b724bc
       }
     }
   }

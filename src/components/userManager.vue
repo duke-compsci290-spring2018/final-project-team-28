@@ -45,10 +45,7 @@ export default {
         admin:!u.admin
       });
     },
-<<<<<<< HEAD
-    downloadPlaylist() {
 
-=======
     downloadPlaylists() {
       axios.get('http://localhost:3000/admindump/')
         .then(response => {
@@ -59,7 +56,6 @@ export default {
         .catch(err => {
           console.error(err);
         });
->>>>>>> 15120cf02deb2d586d9cee56cd93c201305b3e9b
     }
   }
 }

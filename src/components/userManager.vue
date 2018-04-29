@@ -10,13 +10,14 @@
             <img src="../assets/admin.png" alt="admin" class="admin-image img-fluid" v-if="u.admin" v-on:click="toggleAdmin(u)"/>
             <img src="../assets/regular.png" alt="regular user" class="admin-image img-fluid" v-if="!u.admin" v-on:click="toggleAdmin(u)"/>
           </div>
-          <span class="col-8">
-            <label class="text-center">{{u['.key']}}</label>
+          <span class="col-3 text-left">
+            <label class="">User: {{u['.key']}}</label>
           </span>
-          <span class="col-4">
-            <div class="row">
-
-            </div>
+          <span class="col-6 text-left">
+            <label class="">Name: {{u.firstname}} {{u.lastname}}</label>
+          </span>
+          <span class="col-2 text-left">
+            <label class=""># of Playlists: {{u.playlists ? u.playlists.length : 0}}</label>
           </span>
         </li>
       </ul>
@@ -44,7 +45,7 @@ export default {
       });
     },
     downloadPlaylist() {
-      
+
     }
   }
 }

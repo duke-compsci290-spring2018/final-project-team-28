@@ -16,23 +16,11 @@
 <script>
 import playerView from './playerView';
 import PlayerControl from './playerControl';
-var billboard = require('billboard-top-100').getChart;
-import Vue from 'vue'
-var d3 = require('d3')
-var VueFire = require('vuefire')
-var firebase = require('firebase')
 
-// global access to initialized app database
 var db = firebase.app().database();
-var storageRef = firebase.storage().ref();
-// global reference to remote data
-//var yearRef = db.ref('1966');
-
-// connect Firebase to Vue
-Vue.use(VueFire);
 export default {
-  name: 'yearViz',
-  props: ['year'],
+  name: 'playlistViz',
+  props: ['user', 'playlist'],
   components: {
     playerView,
     PlayerControl
@@ -48,7 +36,6 @@ export default {
   },
   data () {
     return {
-      msg: 'yearViz',
       curWeek: 0,
       curYear: 1965,
       curAudio: null,
@@ -327,6 +314,7 @@ export default {
         clearInterval(this.intervalID);
         this.done();
       } else {
+        console.log('playing week',this.curWeek,'of year',this.year);
         this.play();
       }
     },

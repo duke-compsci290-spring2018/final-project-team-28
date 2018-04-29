@@ -17,14 +17,15 @@
           </li>
           <li v-for="(s, index) in songs" class="row">
             <span class="col-8">
-              <label class="text-center">{{s.track}}</label>
+              <img class="img-fluid album-pic" v-bind:src="s.img" v-bind:alt="s.track"/>
+              <label class="text-center">{{s.track}} by: {{s.artist}}</label>
             </span>
             <span class="col-4">
               <div class="row">
                 <button v-on:click="deleteSong(s)" class="btn btn-default col-2 mr-3">&times;</button>
                 <div class="d-inline-block col-2">
                   <button v-if="index!=0" v-on:click="moveUp(s)" class="btn btn-default d-block arrow-btn">&uarr;</button>
-                  <button v-if="index!=playlists.length-1" v-on:click="moveDown(s)" class="btn btn-default d-block arrow-btn">&darr;</button>
+                  <button v-if="index!=songs.length-1" v-on:click="moveDown(s)" class="btn btn-default d-block arrow-btn">&darr;</button>
                 </div>
               </div>
             </span>
@@ -57,6 +58,7 @@ export default {
       this.$emit('doneEdit', true);
     },
     addSong: function () {
+      this.status = 'Enter a Song and Artist to add to the playlist!';
       if (!this.searchSong) {
         this.status = 'Invalid Song Name';
       } else if (!this.searchArtist) {
@@ -64,8 +66,18 @@ export default {
       } else {
         axios.get('http://localhost:3000/track/' + this.searchArtist + '/' + this.searchSong)
           .then(response => {
-            var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
-            var mp3 = response.data.mp3;
+            if(response.data.mp3) {
+              this.songRef.child(this.songs.length).set({
+                track:this.searchSong,
+                artist:this.searchArtist,
+                img:response.data.img,
+                mp3:response.data.mp3
+              })
+            } else {
+              this.status = 'Unable to add song';
+            }
+            this.searchArtist = '';
+            this.searchSong = '';
           })
           .catch(err => {
             console.error(err);
@@ -89,6 +101,10 @@ export default {
 </script>
 
 <style scope>
+.album-pic {
+  height: 80px;
+}
+
 .arrow-btn {
   height: 20px;
   padding: 0px 15px 0px 15px;

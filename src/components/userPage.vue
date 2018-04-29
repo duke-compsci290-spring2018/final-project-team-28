@@ -6,6 +6,7 @@
       <playlistManager v-bind:playlistRef="playlistRef" v-bind:user="username" v-on:editPlaylist="editPlaylist($event)"></playlistManager>
     </div>
     <div v-if="$root.$data.user.admin" class="mt-5">
+      <userManager v-bind:admin="username"></userManager>
       I am an admin
     </div>
   </div>
@@ -15,6 +16,7 @@
 <script>
 import playlistEditor from './playlistEditor';
 import playlistManager from './playlistManager';
+import userManager from './userManager';
 var firebase = require('firebase')
 
 var db = firebase.app().database();
@@ -24,7 +26,8 @@ export default {
   props: ['username'],
   components: {
     playlistEditor: playlistEditor,
-    playlistManager: playlistManager
+    playlistManager: playlistManager,
+    userManager: userManager
   },
   created() {},
   beforeRouteEnter: (to, from, next) => {

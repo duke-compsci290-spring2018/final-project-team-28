@@ -99,7 +99,7 @@ export default {
       this.$router.push({
         name: 'userPlaylist',
         params: {
-          username: this.username,
+          username: this.user,
           listIndex: l['.key'],
           playlist: l.name
         }

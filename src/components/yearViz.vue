@@ -38,6 +38,7 @@ export default {
   beforeRouteLeave (to, from, next) {
     clearInterval(this.intervalID);
     document.removeEventListener('scroll', this.handleScroll);
+    document.getElementsByTagName('svg')[0].remove();
     this.curAudio.pause();
     next();
   },

@@ -108,10 +108,13 @@ app.get('/user/:username', (req, res, next) => {
           console.log(userProfile);
           res.json(userProfile);
         }
+        else {
+           res.json({response: '400004 not found'});
+        }
         //var key = childSnapshot.key;
         //console.log(childData);
       })
-      res.json({response: '400004 not found'});
+     
     })
 
 });

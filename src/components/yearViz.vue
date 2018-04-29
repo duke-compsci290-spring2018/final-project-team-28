@@ -2,8 +2,8 @@
   <div class="yearViz">
     <h1 id="title">Top Hits of {{year}}</h1>
     <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
-    <playerControl v-bind:class="{'sticky':stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
-    <div v-bind:class="{'pad-bot':stickControl}">
+    <playerControl v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
+    <div>
       <!--{{songRanks}}-->
       <div class="graph"></div>
       <!--<svg width="960" height="500"></svg>-->
@@ -37,12 +37,14 @@ export default {
   },
   beforeRouteLeave (to, from, next) {
     clearInterval(this.intervalID);
-    document.removeEventListener('scroll', this.handleScroll);
+    // document.removeEventListener('scroll', this.handleScroll);
     if(this.curAudio) {
       this.curAudio.pause();
       this.curAudio = null;
     }
-    document.getElementsByTagName('svg')[0].remove();
+    if(document.getElementsByTagName('svg')[0]) {
+      document.getElementsByTagName('svg')[0].remove();
+    }
     next();
   },
   data () {
@@ -109,7 +111,7 @@ export default {
   },*/
 
   created(){
-    document.addEventListener('scroll', this.handleScroll);
+    // document.addEventListener('scroll', this.handleScroll);
     this.$bindAsArray('weeks',db.ref(this.year.toString()))
     this.startLifeCycle();
   },
@@ -311,6 +313,7 @@ export default {
         .call(zoom)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .attr("class", 'pad-bot')
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -498,6 +501,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+body {
+  padding-bottom: 250px;
+}
+
 #title {
   height:50px;
 }
@@ -522,6 +529,6 @@ a {
   z-index: 0;
 }
 .pad-bot {
-  padding-bottom:25px;
+  padding-bottom:200px;
 }
 </style>

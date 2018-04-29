@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar sticky-top justify-content-between navbar-dark bg-dark">
+  <nav class="navbar justify-content-between navbar-dark bg-dark">
     <router-link tag="a" :to='"/"' class="navbar-brand sonquest-brand">
       <img id="logo-pic" class="img-fluid" src="../assets/sqLogo.png" alt="sonquest logo"/>
       SonQuest

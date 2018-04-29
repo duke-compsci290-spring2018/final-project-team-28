@@ -1,7 +1,7 @@
 <template>
   <div class="playlist-container">
     <h2 class="pt-3 pb-4">{{user}}'s Playlists</h2>
-    <button v-on:click="downloadPlaylist()" class="btn btn-default mb-3">Download My Playlists</button>
+    <button v-on:click="downloadPlaylists()" class="btn btn-default mb-3">Download My Playlists</button>
     <div class="playlist-list container">
       <ul>
         <li class="row">
@@ -43,6 +43,8 @@
 
 
 <script>
+var axios = require('axios');
+var FileSaver = require('file-saver');
 export default {
   name: 'playlistManager',
   props: ['playlistRef', 'user'],
@@ -125,7 +127,17 @@ export default {
       this.playlistRef.child(target['.key']).set(tempL);
       this.playlistRef.child(tempIndex).set(tempTar);
     },
-    downloadPlaylist() {
+    downloadPlaylists() {
+      console.log('downloading...')
+      axios.get('http://localhost:3000/user/'+this.user)
+        .then(response => {
+          var jString = JSON.stringify(response.data);
+          var blob = new Blob([jString], {type: 'application/json'});
+          FileSaver.saveAs(blob, 'user.json');
+        })
+        .catch(err => {
+          console.error(err);
+        });
 
     }
   }

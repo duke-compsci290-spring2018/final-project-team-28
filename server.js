@@ -80,8 +80,6 @@ app.get('/user/:username', (req, res, next) => {
   userRef.once('value')
     .then(function(snapshot) {
       snapshot.forEach(function(childSnapshot) {
-        //console.log(req.params.username, childSnapshot.key);
-        
         if(req.params.username == childSnapshot.key){
           console.log('found user', childSnapshot.key);
           var userData = childSnapshot.val();
@@ -102,7 +100,6 @@ app.get('/user/:username', (req, res, next) => {
                 });
               }
               userProfile.playlists.push(tempList);
-              //console.log(elem.songs);
             });
           }
           console.log(userProfile);
@@ -111,12 +108,21 @@ app.get('/user/:username', (req, res, next) => {
         else {
            res.json({response: '400004 not found'});
         }
-        //var key = childSnapshot.key;
-        //console.log(childData);
       })
-     
     })
+});
 
+app.get('/admindump', (req, res, next) => {
+ userRef.once('value')
+    .then(function(snapshot) {
+      var noPasswords = [];
+      snapshot.forEach(function(childSnapshot){
+        var user = childSnapshot.val();
+        user.password = '';
+        noPasswords.push(user);
+      });
+      res.json(noPasswords);
+    });
 });
 // Start the app by listening on the default Heroku port
 app.listen(process.env.PORT || 3000);

@@ -10,12 +10,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.config.productionTip = false
 Vue.use(BootstrapVue);
 
-var playerState = {
-    isPlaying: false,
-    goToPrevious: false,
-    goToNext: false,
-    currentSong: '',
-    currentArtist: ''
+var userState = {
+  loggedIn: false,
+  firstname: '',
+  lastname: '',
+  username: '',
+  admin: false,
 };
 
 /* eslint-disable no-new */
@@ -25,6 +25,6 @@ new Vue({
   components: { App },
   template: '<App/>',
   data: {
-    sharedPlayerState: playerState
+    user: userState
   }
 })

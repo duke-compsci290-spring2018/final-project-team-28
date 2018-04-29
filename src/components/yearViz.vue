@@ -1,9 +1,9 @@
 <template>
   <div class="yearViz">
-    <h1 id="title">yearViz</h1>
+    <h1 id="title">Top Hits of {{year}}</h1>
     <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
-    <playerControl v-bind:class="{sticky:stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
-    <div v-bind:class="{'pt-5':stickControl}">
+    <playerControl v-bind:class="{'sticky':stickControl}" v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
+    <div v-bind:class="{'pad-bot':stickControl}">
       {{songRanks}}
       <button @click="drawPlot">test</button>-->
       <button @click="manageTimer">play</button>
@@ -22,16 +22,8 @@ var d3 = require('d3')
 var VueFire = require('vuefire')
 var firebase = require('firebase')
 
-var config = {
-  apiKey: "AIzaSyDSRaDpwgpKA6QPsGLlpi4jc5F0t2Cglz0",
-  authDomain: "sonquest-3379c.firebaseapp.com",
-  databaseURL: "https://sonquest-3379c.firebaseio.com",
-  projectId: "sonquest-3379c",
-  storageBucket: "sonquest-3379c.appspot.com",
-  messagingSenderId: "228676657274"
-};
 // global access to initialized app database
-var db = firebase.initializeApp(config).database();
+var db = firebase.app().database();
 var storageRef = firebase.storage().ref();
 // global reference to remote data
 //var yearRef = db.ref('1966');
@@ -64,6 +56,7 @@ export default {
       startTime: null,
       stickControl: false,
       remaining: 15,
+      playerControlOffset: 0,
       playerControls:{
         back: ()=>{
           clearInterval(this.intervalID);
@@ -326,7 +319,7 @@ export default {
       if(this.curAudio) {
         this.curWeek++;
       }
-      if (this.curWeek === this.weeks.len) {
+      if (this.curWeek >= this.weeks.len) {
         this.done();
         this.curAudio.pause;
         clearInterval(this.intervalID);
@@ -364,7 +357,10 @@ export default {
 
     handleScroll () {
       var player = document.getElementById('player');
-      if(window.pageYOffset >= player.offsetHeight + 60) {
+      if (!this.stickControl) {
+        this.playerControlOffset = player.offsetTop;
+      }
+      if(window.pageYOffset + window.innerHeight >= this.playerControlOffset + player.offsetHeight) {
         this.stickControl = true;
       }
       else {
@@ -401,10 +397,11 @@ a {
 }
 .sticky{
   position:fixed;
-  top:75px;
+  bottom: 0;
   width:100%;
+  z-index: 0;
 }
-.pad-top {
-  padding-top:20%;
+.pad-bot {
+  padding-bottom:120px;
 }
 </style>

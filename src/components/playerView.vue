@@ -1,5 +1,5 @@
 <template>
-  <div id="player" class= "container-fluid">
+  <div id="player-view" class= "container-fluid">
     <div class="row">
       <div class="col-4 low-opacity pl-0 pr-0">
         <img class="img-fluid" v-bind:src="prevSong.album" v-bind:alt="prevSong.track"/>
@@ -28,7 +28,7 @@
 </script>
 
 <style scoped>
-  #player {
+  #player-view {
     width: 100%;
     background-color: #000;
   }

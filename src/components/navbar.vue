@@ -7,7 +7,8 @@
     <div class="">
       <ul class="mb-0">
         <li class="nav-item d-inline-block" v-for="i in rightMenu">
-          <a class="nav-link sonquest-link" v-on:click="i.onPress()" href>{{i.display}}</a>
+          <span v-if="i.link" class="nav-link sonquest-link" v-on:click="i.onPress()">{{i.display}}</span>
+          <span v-if="!i.link" class="nav-link sonquest-nonlink"><b>{{i.display}}</b></span>
         </li>
       </ul>
     </div>
@@ -28,11 +29,19 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.sonquest-link:link, .sonquest-link:visited {
+.sonquest-nonlink {
+  color: rgba(255,255,255,.75);
+}
+
+.sonquest-link {
+  border-style:solid;
+  border-width:1px;
+  cursor: pointer;
   color: rgba(255,255,255,.75);
 }
 
 .sonquest-link:hover, .sonquest-link:active {
+  cursor: pointer;
   color: rgba(255,255,255,.50);
 }
 
@@ -46,7 +55,7 @@ export default {
   position:fixed;
   top:0;
   left:0;
-  z-index:100;
+  z-index:1;
   margin:auto;
 }
 

@@ -2,7 +2,7 @@
 <div>
 <div class="userlist-container">
     <h2 class="pt-3 pb-4">SonQuest Users</h2>
-    <button v-on:click="downloadPlaylist()" class="btn btn-default mb-3">Download All Playlists</button>
+    <button v-on:click="downloadPlaylists()" class="btn btn-default mb-3">Download All Playlists</button>
     <div class="userlist-list container">
       <ul>
         <li v-for="u in users" v-if="u['.key']!=admin" class="row">
@@ -28,9 +28,10 @@
 
 <script>
 var firebase = require('firebase')
-
+var axios = require('axios');
 var db = firebase.app().database();
 var userRef = db.ref('users');
+var FileSaver = require('file-saver');
 
 export default {
   name: 'userManager',
@@ -44,8 +45,21 @@ export default {
         admin:!u.admin
       });
     },
+<<<<<<< HEAD
     downloadPlaylist() {
 
+=======
+    downloadPlaylists() {
+      axios.get('http://localhost:3000/admindump/')
+        .then(response => {
+          var jString = JSON.stringify(response.data);
+          var blob = new Blob([jString], {type: 'application/json'});
+          FileSaver.saveAs(blob, 'alluserdump.json');
+        })
+        .catch(err => {
+          console.error(err);
+        });
+>>>>>>> 15120cf02deb2d586d9cee56cd93c201305b3e9b
     }
   }
 }

@@ -4,6 +4,10 @@
     <SignIn :class="{hide:signInHide}" v-on:canceled="onCancel" :signInMethods="signInMethods" v-on:loggedIn="loggedIn"></SignIn>
     <SignUp :class="{hide:signUpHide}" v-on:canceled="onCancel" :signUpMethods="signUpMethods" v-on:loggedIn="loggedIn"></SignUp>
     <router-view/>
+    <footer class="sq-footer">
+      <p>Created By: Asa Royal and Gordon Huynh</p>
+      <img id="cc-pic" class="img-fluid" src="./assets/cc-logo.png" alt="creative commons logo"/>
+    </footer>
   </div>
 </template>
 
@@ -160,6 +164,17 @@ export default {
 </script>
 
 <style>
+#cc-pic {
+  height: 50px;
+}
+
+.sq-footer {
+  background-color: #343a40;
+  color: #fff;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .hide {
   display:none;
 }
@@ -172,7 +187,4 @@ export default {
   color: #2c3e50;
 }
 
-body {
-  margin: 0px;
-}
 </style>

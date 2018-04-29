@@ -197,14 +197,14 @@ export default {
       const week = this.curWeek - 1;
       if (week < 0 || this.weeks[week]===undefined) {
         return {
-          album:'',
+          img:'',
           track:''
         };
       }
       var song = this.getPlayedSong(week);
       this.drawPlot();
       return {
-        album:song.img,
+        img:song.img,
         track:song.track
       }
     },
@@ -212,12 +212,12 @@ export default {
     currentTrack: function () {
       if(this.weeks[this.curWeek]===undefined) {
         return {
-          album:'',
+          img:'',
           track:''};
       }
       var song = this.getPlayedSong(this.curWeek);
       return {
-        album:song.img,
+        img:song.img,
         track:song.track
       }
     },
@@ -226,14 +226,14 @@ export default {
       const week = this.curWeek + 1;
       if (week > this.weeks.len || this.weeks[week]===undefined) {
         return {
-          album:'',
+          img:'',
           track:''
         };
       }
       var song = this.getPlayedSong(week);
       this.drawPlot();
       return {
-        album:song.img,
+        img:song.img,
         track:song.track
       }
     },

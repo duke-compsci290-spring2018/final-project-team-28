@@ -1,7 +1,7 @@
 <template>
-  <div class="years">
+  <div class="years text-center">
     <span v-for="yr in yearList">
-      <router-link :to='"/"+yr'>{{yr}} </router-link> 
+      <router-link tag="a" class="year-link" :to='"/"+yr'>{{yr}} </router-link> 
     </span>
   </div>
 </template>
@@ -31,6 +31,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.year-link:link,.year-link:visited {
+  color: #008c1d;
+}
+
 h1, h2 {
   font-weight: normal;
 }

@@ -23,7 +23,6 @@ export default {
   },
   beforeRouteLeave (to, from, next) {
     clearInterval(this.intervalID);
-    document.removeEventListener('scroll', this.handleScroll);
     if(this.curAudio) {
       this.curAudio.pause();
       this.curAudio = null;
@@ -31,7 +30,11 @@ export default {
     next();
   },
   created(){
-    this.$bindAsArray('songs', db.ref('users/'+this.username+'/playlists/'+this.listIndex+'/songs'));
+    if (this.username === 'Public') {
+      this.$bindAsArray('songs', db.ref('adminplaylists/'+this.listIndex+'/songs'))
+    } else {
+      this.$bindAsArray('songs', db.ref('users/'+this.username+'/playlists/'+this.listIndex+'/songs'));
+    }
     this.startLifeCycle();
   },
   data () {
@@ -43,7 +46,7 @@ export default {
       intevalID: null,
       startTime: null,
       remaining: 15,
-      songRef: db.ref('users/'+this.username+'/playlists/'+this.key+'/songs'),
+      songRef: this.username === 'Public' ? db.ref('adminplaylists'/+this.listIndex+'/songs') : db.ref('users/'+this.username+'/playlists/'+this.key+'/songs'),
       playerControls:{
         back: ()=>{
           clearInterval(this.intervalID);
@@ -91,13 +94,13 @@ export default {
       const i = this.songIndex - 1;
       if (i < 0 || this.songs[i]===undefined) {
         return {
-          album:'',
+          img:'',
           track:''
         };
       }
       var song = this.songs[i];
       return {
-        album:song.img,
+        img:song.img,
         track:song.track
       }
     },
@@ -105,12 +108,12 @@ export default {
     currentTrack: function () {
       if(this.songs[this.songIndex]===undefined) {
         return {
-          album:'',
+          img:'',
           track:''};
       }
       var song = this.songs[this.songIndex];
       return {
-        album:song.img,
+        img:song.img,
         track:song.track
       }
     },
@@ -119,13 +122,13 @@ export default {
       const i = this.songIndex + 1;
       if (i > this.songs.length || this.songs[i]===undefined) {
         return {
-          album:'',
+          img:'',
           track:''
         };
       }
       var song = this.songs[i];
       return {
-        album:song.img,
+        img:song.img,
         track:song.track
       }
     },

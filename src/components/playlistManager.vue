@@ -1,6 +1,6 @@
 <template>
-  <div class="playlist-container">
-    <h2 class="pt-3 pb-4">{{user}}'s Playlists</h2>
+  <div class="playlist-container" v-bind:class="containerColor">
+    <h2 class="pt-3 pb-4">Playlists for {{user}}</h2>
     <button v-on:click="downloadPlaylists()" class="btn btn-default mb-3">Download {{user}}'s Playlists</button>
     <div class="playlist-list container">
       <ul>
@@ -28,7 +28,7 @@
             <div class="row">
               <button v-on:click="deletePlaylist(l)" class="btn btn-default col-2 mr-3">&times;</button>
               <button v-on:click="$emit('editPlaylist',l)" class="btn btn-default col-2 mr-3">Edit</button>
-              <button v-on:click="playPlaylist(l)" class="btn btn-default col-2">Play</button>
+              <button v-on:click="play(l,user)" class="btn btn-default col-2">Play</button>
               <div class="d-inline-block col-2">
                 <button v-if="index!=0" v-on:click="moveUp(l)" class="btn btn-default d-block arrow-btn">&uarr;</button>
                 <button v-if="index!=playlists.length-1" v-on:click="moveDown(l)" class="btn btn-default d-block arrow-btn">&darr;</button>
@@ -47,7 +47,7 @@ var axios = require('axios');
 var FileSaver = require('file-saver');
 export default {
   name: 'playlistManager',
-  props: ['playlistRef', 'user'],
+  props: ['playlistRef', 'user', 'play', 'containerColor'],
   data() {
     return {
       newPlayListName: '',
@@ -67,7 +67,7 @@ export default {
         this.status = 'Playlist Name Already In Use';
       } else {
         if (this.playlists.length === 0) {
-          db.ref('users/' + this.username).child('playlists').child(0).set({
+          db.ref('users/' + this.user).child('playlists').child(0).set({
             name: this.newPlayListName
           });
         } else {
@@ -96,16 +96,6 @@ export default {
           name: response
         });
       }
-    },
-    playPlaylist(l) {
-      this.$router.push({
-        name: 'userPlaylist',
-        params: {
-          username: this.user,
-          listIndex: l['.key'],
-          playlist: l.name
-        }
-      });
     },
     moveUp(l) {
       const tempIndex = parseInt(l['.key']);
@@ -173,9 +163,16 @@ li {
 }
 
 .playlist-container {
-  background-color: #a2ff9b;
   margin-left: 15%;
   margin-right: 15%;
   padding: 0% 8% 5% 8%;
+}
+
+.container-green {
+  background-color: #a2ff9b;
+}
+
+.container-blue {
+  background-color: #7fb0ff;
 }
 </style>

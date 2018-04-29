@@ -27,8 +27,14 @@ export default new Router({
       props: true
     },
     {
-      path: '/:username/:listIndex/:playlist',
+      path: '/custom/:username/:listIndex/:playlist',
       name: 'userPlaylist',
+      component: playlistViz,
+      props: true
+    },
+    {
+      path: '/public/:listIndex/:playlist',
+      name: 'publicPlaylist',
       component: playlistViz,
       props: true
     }

@@ -64,7 +64,7 @@ export default {
       } else if (!this.searchArtist) {
         this.status = 'Invalid Artist Name';
       } else {
-        axios.get('http://localhost:3000/track/' + this.searchArtist + '/' + this.searchSong)
+        axios.get('/track/' + this.searchArtist + '/' + this.searchSong)
           .then(response => {
             if (response.data.mp3) {
               this.songRef.child(this.songs.length).set({

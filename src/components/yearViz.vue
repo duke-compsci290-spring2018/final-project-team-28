@@ -126,7 +126,7 @@ export default {
         elem['.value'].forEach(function (element) {
           if (!(element.mp3 || element.img)) {
             const axios = require('axios')
-            axios.get('http://localhost:3000/track/' + element.artist + '/' + element.track)
+            axios.get('/track/' + element.artist + '/' + element.track)
               .then(response => {
                 var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
                 var yearRef = db.ref(that.year.toString());

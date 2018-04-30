@@ -121,7 +121,7 @@ export default {
       this.playlistRef.child(tempIndex).set(tempTar);
     },
     downloadPlaylists() {
-      axios.get('http://localhost:3000/user/' + this.user)
+      axios.get('/user/' + this.user)
         .then(response => {
           var jString = JSON.stringify(response.data);
           var blob = new Blob([jString], {

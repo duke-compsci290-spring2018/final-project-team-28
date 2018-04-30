@@ -47,7 +47,7 @@ export default {
       });
     },
     downloadPlaylists() {
-      axios.get('http://localhost:3000/admindump/')
+      axios.get('/admindump/')
         .then(response => {
           var jString = JSON.stringify(response.data);
           var blob = new Blob([jString], {

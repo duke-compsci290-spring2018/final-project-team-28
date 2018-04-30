@@ -44,6 +44,10 @@
 <script>
 var axios = require('axios');
 var FileSaver = require('file-saver');
+var firebase = require('firebase');
+
+var db = firebase.app().database();
+
 export default {
   name: 'playlistManager',
   props: ['playlistRef', 'user', 'play', 'containerColor'],

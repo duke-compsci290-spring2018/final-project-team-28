@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div>
+    <div class="mb-5">
       <playlistEditor v-if="songlistRef!=null" v-on:doneEdit="doneEditting()" v-bind:songRef="songlistRef" v-bind:name="edittingPlaylist"></playlistEditor>
       <h1 class="pt-5 pb-5">Hello {{firstname}}</h1>
       <playlistManager v-bind:playlistRef="playlistRef" v-bind:user="username" v-on:editPlaylist="editPlaylist($event)" v-bind:play="playUserPlaylist"
         containerColor="container-green"></playlistManager>
     </div>
-    <div v-if="$root.$data.user.admin" class="mt-5 mb-5">
+    <div v-if="$root.$data.user.admin" class="mb-5">
       <playlistManager v-bind:playlistRef="adminRef" user="Public" v-on:editPlaylist="editAdminPlaylist($event)" v-bind:play="playPublicPlaylist"
         containerColor="container-blue"></playlistManager>
       <userManager class="mt-5" v-bind:admin="username"></userManager>

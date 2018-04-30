@@ -38,11 +38,6 @@ var authOptions = {
 
 var x = 0;
 
-function postSpotify() {
-
-}
-
-
 app.get('/track/:artist/:name', (req, res, next) => {
   console.log('track request', req.params);
   request.post(authOptions, function (error, response, body) {
@@ -85,40 +80,51 @@ app.get('/track/:artist/:name', (req, res, next) => {
 app.get('/user/:username', (req, res, next) => {
   var userProfile = {};
   console.log('user request', req.params);
-  userRef.once('value')
-    .then(function (snapshot) {
-      snapshot.forEach(function (childSnapshot) {
-        if (req.params.username == childSnapshot.key) {
-          console.log('found user', childSnapshot.key);
-          var userData = childSnapshot.val();
-          userProfile.name = userData.firstname + ' ' + userData.lastname;
-          userProfile.playlists = [];
-          var uPlaylists = userData.playlists;
-          if (uPlaylists) {
-            uPlaylists.forEach(function (elem) {
-              var tempList = {}
-              tempList.playlist_name = elem.name
-              tempList.songs = [];
-              if (elem.songs) {
-                elem.songs.forEach(function (song) {
-                  tempList.songs.push({
-                    'track': song.track,
-                    'artist': song.artist
-                  })
-                });
-              }
-              userProfile.playlists.push(tempList);
-            });
+  if(req.params.username == 'public'){
+    var pubRef = db.ref('adminplaylists');
+      pubRef.once('value')
+        .then(function(snapshot) {
+          console.log(snapshot.val());
+          var publicPlaylists = snapshot.val();
+          res.json(publicPlaylists);
+        })
+  }
+
+  else{
+    userRef.once('value')
+      .then(function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+          if(req.params.username == childSnapshot.key){
+            console.log('found user', childSnapshot.key);
+            var userData = childSnapshot.val();
+            userProfile.name = userData.firstname + ' ' + userData.lastname;
+            userProfile.playlists = [];
+            var uPlaylists = userData.playlists;
+            if(uPlaylists){
+              uPlaylists.forEach(function(elem) {
+                var tempList = {}
+                tempList.playlist_name = elem.name
+                tempList.songs = [];
+                if(elem.songs){
+                  elem.songs.forEach(function(song){
+                    tempList.songs.push({
+                      'track': song.track,
+                      'artist': song.artist
+                    })
+                  });
+                }
+                userProfile.playlists.push(tempList);
+              });
+            }
+            console.log(userProfile);
+            res.json(userProfile);
           }
-          console.log(userProfile);
-          res.json(userProfile);
-        } else {
-          res.json({
-            response: '400004 not found'
-          });
-        }
+          else {
+             res.json({response: '400004 not found'});
+          }
+        })
       })
-    })
+  }
 });
 
 app.get('/admindump', (req, res, next) => {

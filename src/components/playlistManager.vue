@@ -41,7 +41,6 @@
   </div>
 </template>
 
-
 <script>
 var axios = require('axios');
 var FileSaver = require('file-saver');
@@ -118,28 +117,27 @@ export default {
       this.playlistRef.child(tempIndex).set(tempTar);
     },
     downloadPlaylists() {
-      console.log('downloading...')
-      axios.get('http://localhost:3000/user/'+this.user)
+      axios.get('http://localhost:3000/user/' + this.user)
         .then(response => {
           var jString = JSON.stringify(response.data);
-          var blob = new Blob([jString], {type: 'application/json'});
+          var blob = new Blob([jString], {
+            type: 'application/json'
+          });
           FileSaver.saveAs(blob, 'user.json');
         })
         .catch(err => {
-          console.error(err);
+          this.status = "Failed to download";
         });
 
     }
   }
 }
-
-
 </script>
 
 <style scoped>
 .arrow-btn {
-	height: 20px;
-	padding: 0px 15px 0px 15px;
+  height: 20px;
+  padding: 0px 15px 0px 15px;
 }
 
 ul {
@@ -149,7 +147,7 @@ ul {
 }
 
 li {
-  border-style:solid;
+  border-style: solid;
   border-width: 0px 0px 2px 0px;
   padding: 5px 0px 5px 0px;
   width: 100%;
@@ -157,7 +155,7 @@ li {
 }
 
 .playlist-list {
-  border-style:solid;
+  border-style: solid;
   background-color: #e8e8e8;
   padding: 0;
 }

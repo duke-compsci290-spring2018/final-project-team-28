@@ -1,18 +1,18 @@
 <template>
-  <div id="player-view" class= "container-fluid">
+  <div id="player-view" class="container-fluid">
     <div class="row">
       <div class="col-4 low-opacity pl-0 pr-0">
-        <img class="img-fluid" v-bind:src="prevSong.img" v-bind:alt="prevSong.track"/>
+        <img class="img-fluid" v-bind:src="prevSong.img" v-bind:alt="prevSong.track" />
       </div>
       <div class="col-4 pl-0 pr-0">
-        <img class="img-fluid mh-50" v-bind:src="curSong.img" v-bind:alt="curSong.track"/>
+        <img class="img-fluid mh-50" v-bind:src="curSong.img" v-bind:alt="curSong.track" />
       </div>
       <div class="col-4 low-opacity pl-0 pr-0">
-        <img class="img-fluid" v-bind:src="nextSong.img" v-bind:alt="nextSong.track"/>
+        <img class="img-fluid" v-bind:src="nextSong.img" v-bind:alt="nextSong.track" />
       </div>
       <select v-if="userLoggedIn" v-model="chosenPlaylist">
         <option disabled value="">Playlist</option>
-        <option v-for ="list in userPlaylists">{{list.name}}</option>
+        <option v-for="list in userPlaylists">{{list.name}}</option>
       </select>
       <button id="addButton" @click="addToUserPlaylist">+</button>
     </div>
@@ -32,12 +32,12 @@
   // connect Firebase to Vue
   Vue.use(VueFire);
   export default {
-    name:"playerView",
-    props:['prevSong', 'curSong', 'nextSong'],
-    data () {
+    name: "playerView",
+    props: ['prevSong', 'curSong', 'nextSong'],
+    data() {
       return {
-        leftAlbum:'',
-        leftAlbumTrack:'',
+        leftAlbum: '',
+        leftAlbumTrack: '',
         chosenPlaylist: '',
         curUserPlaylist: [],
         adding: false
@@ -45,37 +45,31 @@
     },
     computed: {
       userLoggedIn: function () {
-        if(this.$root.$data.user.username){
+        if (this.$root.$data.user.username) {
           this.$bindAsArray('userPlaylists', userRef.child(this.$root.$data.user.username).child('playlists'));
-          console.log(this.userPlaylists);
           return true;
         }
-        return false; 
+        return false;
       }
     },
-
     firebase: {
       allUsers: userRef
     },
     methods: {
       addToUserPlaylist() {
-        if(!this.userLoggedIn || !this.chosenPlaylist){
+        if (!this.userLoggedIn || !this.chosenPlaylist) {
           return;
         }
         var playlistNumber = 0;
-        for(var i = 0 ; i < this.userPlaylists.length; i++){
-          if(this.userPlaylists[i].name == this.chosenPlaylist){
+        for (var i = 0; i < this.userPlaylists.length; i++) {
+          if (this.userPlaylists[i].name == this.chosenPlaylist) {
             playlistNumber = i;
           }
         }
-        if(this.userPlaylists[playlistNumber].songs){
+        if (this.userPlaylists[playlistNumber].songs) {
           var numSongs = this.userPlaylists[playlistNumber].songs.length
-          console.log('playlist number',playlistNumber);
-          console.log('cursong', this.curSong);
-          console.log('numsongs', numSongs);
-          userRef.child(this.$root.$data.user.username).child('playlists').child(playlistNumber).child('songs').child(numSongs).set(this.curSong);   
-        }
-        else{
+          userRef.child(this.$root.$data.user.username).child('playlists').child(playlistNumber).child('songs').child(numSongs).set(this.curSong);
+        } else {
           userRef.child(this.$root.$data.user.username).child('playlists').child(playlistNumber).child('songs').child(0).set(this.curSong);
         }
         this.chosenPlaylist = '';

@@ -19,7 +19,7 @@
           </div>
           <input class="col-4 text-center" type="text" placeholder="Enter Last Name" v-model="lastname">
         </div>
-        
+
         <div class="row">
           <div class="col-2">
             <label>
@@ -63,8 +63,8 @@
     methods: {
       reset() {
         this.firstname = '',
-        this.lastname = '',
-        this.username = '';
+          this.lastname = '',
+          this.username = '';
         this.password = '';
         this.status = 'Please enter your information';
         this.error = false;
@@ -88,8 +88,7 @@
           if (this.signUpMethods.unameLookUp(this.username).len > 0) {
             this.status = 'Username already taken!';
             this.error = true;
-          }
-          else {
+          } else {
             var u = this.signUpMethods.addUser(this.firstname, this.lastname, this.username, this.password);
             var curU = this.$root.$data.user;
             curU.loggedIn = true;
@@ -113,14 +112,15 @@
       }
     }
   }
+
 </script>
 
 <style scoped>
   .sq-alert {
-    animation-name:alertAnimation;
+    animation-name: alertAnimation;
     animation-duration: 1s;
     background-color: #ffcccc;
-    color:#ff7777;
+    color: #ff7777;
   }
 
   .sonquest-modal {
@@ -136,14 +136,14 @@
   }
 
   .sonquest-modal-content {
-    background-color:#fff;
+    background-color: #fff;
     border-radius: 15px;
     padding: 50px;
     margin: 5px auto;
   }
 
   .sonquest-button-container {
-    background-color:#ccc;
+    background-color: #ccc;
   }
 
   .sq-row {
@@ -159,17 +159,16 @@
 
   @keyframes alertAnimation {
     0% {
-      background-color:#fff;
-      color:#000;
+      background-color: #fff;
+      color: #000;
     }
     30% {
       background-color: #fc7676;
-      color:#ff7777;
+      color: #ff7777;
     }
     60% {
       background-color: #ffcccc;
-      color:#ff7777;
+      color: #ff7777;
     }
   }
-
 </style>

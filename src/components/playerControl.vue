@@ -28,16 +28,15 @@
 
 <script>
   export default {
-    name:"PlayerControl",
-    props:['controls','isPlaying','curWeek','curSong','curArtist'],
-    methods: {
-    }
+    name: "PlayerControl",
+    props: ['controls', 'isPlaying', 'curWeek', 'curSong', 'curArtist'],
+    methods: {}
   }
 </script>
 
 <style scoped>
 .hide {
-  display:none;
+  display: none;
 }
 
 #player {
@@ -55,7 +54,7 @@ h2 {
 }
 
 #button-prev {
-  background-image:url(../assets/left-arrow.png);
+  background-image: url(../assets/left-arrow.png);
   background-position: center;
   background-size: contain;
   border-radius: 50%;
@@ -64,7 +63,7 @@ h2 {
 }
 
 #button-play {
-  background-image:url(../assets/play.png);
+  background-image: url(../assets/play.png);
   background-position: center;
   background-size: contain;
   border-radius: 50%;
@@ -73,7 +72,7 @@ h2 {
 }
 
 #button-pause {
-  background-image:url(../assets/pause.png);
+  background-image: url(../assets/pause.png);
   background-position: center;
   background-size: contain;
   border-radius: 50%;
@@ -82,12 +81,11 @@ h2 {
 }
 
 #button-next {
-  background-image:url(../assets/right-arrow.png);
+  background-image: url(../assets/right-arrow.png);
   background-position: center;
   background-size: contain;
   border-radius: 50%;
   height: 45px;
   width: 45px;
 }
-
 </style>

@@ -22,7 +22,9 @@ var userState = {
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {
+    App
+  },
   template: '<App/>',
   data: {
     user: userState

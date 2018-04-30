@@ -21,23 +21,23 @@ export default {
     playerView,
     PlayerControl
   },
-  beforeRouteLeave (to, from, next) {
+  beforeRouteLeave(to, from, next) {
     clearInterval(this.intervalID);
-    if(this.curAudio) {
+    if (this.curAudio) {
       this.curAudio.pause();
       this.curAudio = null;
     }
     next();
   },
-  created(){
+  created() {
     if (this.username === 'Public') {
-      this.$bindAsArray('songs', db.ref('adminplaylists/'+this.listIndex+'/songs'))
+      this.$bindAsArray('songs', db.ref('adminplaylists/' + this.listIndex + '/songs'))
     } else {
-      this.$bindAsArray('songs', db.ref('users/'+this.username+'/playlists/'+this.listIndex+'/songs'));
+      this.$bindAsArray('songs', db.ref('users/' + this.username + '/playlists/' + this.listIndex + '/songs'));
     }
     this.startLifeCycle();
   },
-  data () {
+  data() {
     return {
       songIndex: 0,
       curAudio: null,
@@ -46,119 +46,115 @@ export default {
       intevalID: null,
       startTime: null,
       remaining: 15,
-      songRef: this.username === 'Public' ? db.ref('adminplaylists'/+this.listIndex+'/songs') : db.ref('users/'+this.username+'/playlists/'+this.key+'/songs'),
-      playerControls:{
-        back: ()=>{
+      songRef: this.username === 'Public' ? db.ref('adminplaylists' / +this.listIndex + '/songs') : db.ref('users/' + this.username + '/playlists/' + this.key + '/songs'),
+      playerControls: {
+        back: () => {
           clearInterval(this.intervalID);
           this.songIndex--;
-          if(this.songIndex < 0) {
+          if (this.songIndex < 0) {
             this.songIndex = 0;
           }
           this.curTrack = '';
           this.play();
-          this.intervalID = setInterval(()=>{
+          this.intervalID = setInterval(() => {
             this.step();
-          },15000)
+          }, 15000)
         },
-        forward: ()=>{
+        forward: () => {
           clearInterval(this.intervalID);
           this.songIndex++;
-          if(this.songIndex >= this.songs.length) {
+          if (this.songIndex >= this.songs.length) {
             this.songIndex = this.songs.length - 1;
           }
           this.curTrack = '';
           this.play();
-          this.intervalID = setInterval(()=>{
+          this.intervalID = setInterval(() => {
             this.step();
-          },15000)
+          }, 15000)
         },
-        pause: ()=>{
+        pause: () => {
           this.curAudio.pause();
           clearInterval(this.intervalID);
           this.remaining = new Date() - this.startTime;
           this.isPlaying = false;
         },
-        resume: ()=>{
+        resume: () => {
           this.curAudio.play();
-          this.intervalID = setInterval(()=>{
+          this.intervalID = setInterval(() => {
             this.step();
-          },15000);
+          }, 15000);
           this.isPlaying = true;
         }
       }
     }
   },
-
   computed: {
     lastTrack: function () {
       const i = this.songIndex - 1;
-      if (i < 0 || this.songs[i]===undefined) {
+      if (i < 0 || this.songs[i] === undefined) {
         return {
-          img:'',
-          track:''
+          img: '',
+          track: ''
         };
       }
       var song = this.songs[i];
       return {
-        img:song.img,
-        track:song.track
+        img: song.img,
+        track: song.track
       }
     },
-
     currentTrack: function () {
-      if(this.songs[this.songIndex]===undefined) {
+      if (this.songs[this.songIndex] === undefined) {
         return {
-          img:'',
-          track:''};
+          img: '',
+          track: ''
+        };
       }
       var song = this.songs[this.songIndex];
       return {
-        img:song.img,
-        track:song.track
+        img: song.img,
+        track: song.track
       }
     },
-
     nextTrack: function () {
       const i = this.songIndex + 1;
-      if (i > this.songs.length || this.songs[i]===undefined) {
+      if (i > this.songs.length || this.songs[i] === undefined) {
         return {
-          img:'',
-          track:''
+          img: '',
+          track: ''
         };
       }
       var song = this.songs[i];
       return {
-        img:song.img,
-        track:song.track
+        img: song.img,
+        track: song.track
       }
     },
-
     curTrackName: function () {
       if (this.songs[this.songIndex]) {
         return this.songs[this.songIndex].track;
       }
       return '';
     },
-
     curArtistName: function () {
-      if(this.songs[this.songIndex]) {
+      if (this.songs[this.songIndex]) {
         return this.songs[this.songIndex].artist;
       }
       return '';
     }
   },
   methods: {
-    play () { 
+    play() {
       const newTrack = this.songs[this.songIndex];
-      if(this.curAudio && newTrack.track != this.curTrack) {
+      if (this.curAudio && newTrack.track != this.curTrack) {
         this.curAudio.pause();
       } else if (newTrack.track === this.curTrack) {
-        if (Math.round(this.curAudio.currentTime)>=30) {
+        if (Math.round(this.curAudio.currentTime) >= 30) {
           this.curAudio.currentTime = 0;
         }
       }
       this.curTrack = newTrack.track;
-      if(this.curAudio===null) {
+      if (this.curAudio === null) {
         this.curAudio = new Audio(newTrack.mp3);
       } else {
         this.curAudio.src = newTrack.mp3;
@@ -166,16 +162,14 @@ export default {
       }
       this.curAudio.play();
     },
-
     manageTimer() {
       this.startTime = new Date();
-      this.intervalID = setInterval(()=>{
+      this.intervalID = setInterval(() => {
         this.step();
-      },15000);
+      }, 15000);
     },
-
     step() {
-      if(this.curAudio) {
+      if (this.curAudio) {
         this.songIndex++;
       }
       if (this.songIndex >= this.songs.length) {
@@ -186,26 +180,24 @@ export default {
         this.play();
       }
     },
-
     startLifeCycle() {
-      if (this.songs[this.songIndex]===undefined) {
-        setTimeout(()=>{
+      if (this.songs[this.songIndex] === undefined) {
+        setTimeout(() => {
           this.startLifeCycle();
-        },500)
-      }
-      else {
+        }, 500)
+      } else {
         this.step();
         this.manageTimer();
       }
     },
-
-    done () {
+    done() {
       this.songIndex = 0;
       this.curAudio = null;
       this.curTrack = '';
-      this.$router.push({ name:"HelloWorld" });
+      this.$router.push({
+        name: "HelloWorld"
+      });
     }
-
   }
 }
 </script>
@@ -213,29 +205,36 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #title {
-  height:50px;
+  height: 50px;
 }
-h1, h2 {
+
+h1,
+h2 {
   font-weight: normal;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }
-.sticky{
-  position:fixed;
+
+.sticky {
+  position: fixed;
   bottom: 0;
-  width:100%;
+  width: 100%;
   z-index: 0;
 }
+
 .pad-bot {
-  padding-bottom:120px;
+  padding-bottom: 120px;
 }
 </style>

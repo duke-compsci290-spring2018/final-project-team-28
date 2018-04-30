@@ -6,7 +6,7 @@
     <router-view/>
     <footer class="sq-footer">
       <p>Created By: Asa Royal and Gordon Huynh</p>
-      <img id="cc-pic" class="img-fluid" src="./assets/cc-logo.png" alt="creative commons logo"/>
+      <img id="cc-pic" class="img-fluid" src="./assets/cc-logo.png" alt="creative commons logo" />
     </footer>
   </div>
 </template>
@@ -122,7 +122,13 @@ export default {
           display: "My Account",
           link: true,
           onPress: () => {
-            this.$router.push({ name:'userPage', params: { username:this.$root.$data.user.username, curUser:this.$root.$data.user }});
+            this.$router.push({
+              name: 'userPage',
+              params: {
+                username: this.$root.$data.user.username,
+                curUser: this.$root.$data.user
+              }
+            });
           }
         },
         {
@@ -135,8 +141,7 @@ export default {
             u.firstname = '';
             u.lastname = '';
             u.admin = '';
-            this.navbarOptions = [
-              {
+            this.navbarOptions = [{
                 display: "Sign In",
                 link: true,
                 onPress: () => {
@@ -152,15 +157,16 @@ export default {
                 }
               }
             ];
-            this.$router.push({ name:'HelloWorld' });
+            this.$router.push({
+              name: 'HelloWorld'
+            });
           }
         }
       ];
     }
-
-
   }
 }
+
 </script>
 
 <style>
@@ -176,7 +182,7 @@ export default {
 }
 
 .hide {
-  display:none;
+  display: none;
 }
 
 #app {
@@ -186,5 +192,4 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-
 </style>

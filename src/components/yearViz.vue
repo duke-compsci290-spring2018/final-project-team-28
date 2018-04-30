@@ -2,7 +2,8 @@
   <div class="yearViz">
     <h1 id="title">Top Hits of {{year}}</h1>
     <playerView v-bind:prevSong="lastTrack" v-bind:curSong="currentTrack" v-bind:nextSong="nextTrack"></playerView>
-    <playerControl v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName" v-bind:curArtist="curArtistName"></playerControl>
+    <playerControl v-bind:controls="playerControls" v-bind:isPlaying="isPlaying" v-bind:curWeek="curWeekDate" v-bind:curSong="curTrackName"
+      v-bind:curArtist="curArtistName"></playerControl>
     <div>
       <!--{{songRanks}}-->
       <div class="graph"></div>
@@ -35,19 +36,19 @@ export default {
     playerView,
     PlayerControl
   },
-  beforeRouteLeave (to, from, next) {
+  beforeRouteLeave(to, from, next) {
     clearInterval(this.intervalID);
     // document.removeEventListener('scroll', this.handleScroll);
-    if(this.curAudio) {
+    if (this.curAudio) {
       this.curAudio.pause();
       this.curAudio = null;
     }
-    if(document.getElementsByTagName('svg')[0]) {
+    if (document.getElementsByTagName('svg')[0]) {
       document.getElementsByTagName('svg')[0].remove();
     }
     next();
   },
-  data () {
+  data() {
     return {
       msg: 'yearViz',
       curWeek: 0,
@@ -64,42 +65,42 @@ export default {
       vizParams: {
 
       },
-      playerControls:{
-        back: ()=>{
+      playerControls: {
+        back: () => {
           clearInterval(this.intervalID);
           this.curWeek--;
-          if(this.curWeek < 0) {
+          if (this.curWeek < 0) {
             this.curWeek = 0;
           }
           this.curTrack = '';
           this.play();
-          this.intervalID = setInterval(()=>{
+          this.intervalID = setInterval(() => {
             this.step();
-          },15000)
+          }, 15000)
         },
-        forward: ()=>{
+        forward: () => {
           clearInterval(this.intervalID);
           this.curWeek++;
-          if(this.curWeek >= this.weeks.length) {
+          if (this.curWeek >= this.weeks.length) {
             this.curWeek = this.weeks.length - 1;
           }
           this.curTrack = '';
           this.play();
-          this.intervalID = setInterval(()=>{
+          this.intervalID = setInterval(() => {
             this.step();
-          },15000)
+          }, 15000)
         },
-        pause: ()=>{
+        pause: () => {
           this.curAudio.pause();
           clearInterval(this.intervalID);
           this.remaining = new Date() - this.startTime;
           this.isPlaying = false;
         },
-        resume: ()=>{
+        resume: () => {
           this.curAudio.play();
-          this.intervalID = setInterval(()=>{
+          this.intervalID = setInterval(() => {
             this.step();
-          },15000);
+          }, 15000);
           this.isPlaying = true;
         }
       }
@@ -110,24 +111,22 @@ export default {
     weeks: yearRef
   },*/
 
-  created(){
+  created() {
     // document.addEventListener('scroll', this.handleScroll);
-    this.$bindAsArray('weeks',db.ref(this.year.toString()))
+    this.$bindAsArray('weeks', db.ref(this.year.toString()))
     this.startLifeCycle();
   },
 
   computed: {
     songRanks: function () {
-      // console.log(this.weeks[0]);
       var songs = [];
       var that = this;
-      this.weeks.forEach(function(elem){
+      this.weeks.forEach(function (elem) {
         songs.push(elem);
-        elem['.value'].forEach(function(element){
-          //console.log(that.sanitizeArtist(element.artist));
-          if(!(element.mp3 || element.img)) {
+        elem['.value'].forEach(function (element) {
+          if (!(element.mp3 || element.img)) {
             const axios = require('axios')
-            axios.get('http://localhost:3000/track/'+element.artist+'/'+element.track)
+            axios.get('http://localhost:3000/track/' + element.artist + '/' + element.track)
               .then(response => {
                 var img = response.data.img ? response.data.img : 'https://upload.wikimedia.org/wikipedia/commons/f/f0/CD_disc4.png';
                 var yearRef = db.ref(that.year.toString());
@@ -147,8 +146,8 @@ export default {
     },
     allSongs: function () {
       var songs = new Set();
-      this.weeks.forEach(function(elem){
-        elem['.value'].forEach(function(element){
+      this.weeks.forEach(function (elem) {
+        elem['.value'].forEach(function (element) {
           songs.add(element.track);
         });
       });
@@ -158,7 +157,7 @@ export default {
 
     weeksInYear: function () {
       var weeks = [];
-      this.weeks.forEach(function(elem){
+      this.weeks.forEach(function (elem) {
         weeks.push(elem['.key']);
       });
       return weeks;
@@ -172,71 +171,83 @@ export default {
       var aSongs = this.allSongs;
       var allCoords = [];
       var formatDate = d3.time.format('%Y-%m-%d');
-      aSongs.forEach(function(elem){
+      aSongs.forEach(function (elem) {
         var songPlot = [];
-        sRanks.forEach(function(element){
-          element['.value'].forEach(function(top5Song){
-            if(top5Song.track == elem){
-              songPlot.push({'x':formatDate.parse(element['.key']), 'y': top5Song.rank, 'pic': top5Song.img, 'track': elem, 'artist': top5Song.artist});// color': colors[cCount % 200]});
+        sRanks.forEach(function (element) {
+          element['.value'].forEach(function (top5Song) {
+            if (top5Song.track == elem) {
+              songPlot.push({
+                'x': formatDate.parse(element['.key']),
+                'y': top5Song.rank,
+                'pic': top5Song.img,
+                'track': elem,
+                'artist': top5Song.artist
+              }); // color': colors[cCount % 200]});
               inWeek = true;
             }
           });
-          if(!inWeek){
-            songPlot.push({'x':formatDate.parse(element['.key']), 'y': 10, 'pic': '', 'track': elem, 'artist': ''});//'color': colors[cCount % 200]});
+          if (!inWeek) {
+            songPlot.push({
+              'x': formatDate.parse(element['.key']),
+              'y': 10,
+              'pic': '',
+              'track': elem,
+              'artist': ''
+            }); //'color': colors[cCount % 200]});
           }
           inWeek = false;
         });
         allCoords.push(songPlot);
         cCount++;
       });
-      //console.log('allCoords',allCoords);
       return allCoords;
     },
 
     lastTrack: function () {
       const week = this.curWeek - 1;
-      if (week < 0 || this.weeks[week]===undefined) {
+      if (week < 0 || this.weeks[week] === undefined) {
         return {
-          img:'',
-          track:''
+          img: '',
+          track: ''
         };
       }
       var song = this.getPlayedSong(week);
       this.drawPlot();
       return {
-        img:song.img,
-        track:song.track
+        img: song.img,
+        track: song.track
       }
     },
 
     currentTrack: function () {
-      if(this.weeks[this.curWeek]===undefined) {
+      if (this.weeks[this.curWeek] === undefined) {
         return {
-          img:'',
-          track:''};
+          img: '',
+          track: ''
+        };
       }
       var song = this.getPlayedSong(this.curWeek);
       return {
-        img:song.img,
-        track:song.track,
-        artist:song.artist,
-        mp3:song.mp3,
+        img: song.img,
+        track: song.track,
+        artist: song.artist,
+        mp3: song.mp3,
       }
     },
 
     nextTrack: function () {
       const week = this.curWeek + 1;
-      if (week > this.weeks.len || this.weeks[week]===undefined) {
+      if (week > this.weeks.len || this.weeks[week] === undefined) {
         return {
-          img:'',
-          track:''
+          img: '',
+          track: ''
         };
       }
       var song = this.getPlayedSong(week);
       this.drawPlot();
       return {
-        img:song.img,
-        track:song.track
+        img: song.img,
+        track: song.track
       }
     },
 
@@ -254,41 +265,44 @@ export default {
   },
   methods: {
 
-    sanitizeArtist (artist) {
+    sanitizeArtist(artist) {
       var cleanArtist = artist;
-      if(cleanArtist.indexOf('Featuring') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('Featuring'));
+      if (cleanArtist.indexOf('Featuring') != -1) {
+        cleanArtist = cleanArtist.substring(0, cleanArtist.indexOf('Featuring'));
       }
-      if(cleanArtist.indexOf('&') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('&'));
+      if (cleanArtist.indexOf('&') != -1) {
+        cleanArtist = cleanArtist.substring(0, cleanArtist.indexOf('&'));
       }
-      if(cleanArtist.indexOf('+') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf('+'));
+      if (cleanArtist.indexOf('+') != -1) {
+        cleanArtist = cleanArtist.substring(0, cleanArtist.indexOf('+'));
       }
-      if(cleanArtist.indexOf(',') != -1){
-        cleanArtist = cleanArtist.substring(0,cleanArtist.indexOf(','));
+      if (cleanArtist.indexOf(',') != -1) {
+        cleanArtist = cleanArtist.substring(0, cleanArtist.indexOf(','));
       }
       cleanArtist.trim();
       return cleanArtist;
     },
 
-    drawPlot () {
-      try{
+    drawPlot() {
+      try {
         document.getElementsByTagName('svg')[0].remove();
-      }
-      catch(e){
-      }
+      } catch (e) {}
       var data = this.getPlottable;
-      var margin = {top: 20, right: 30, bottom: 30, left: 50};
+      var margin = {
+        top: 20,
+        right: 30,
+        bottom: 30,
+        left: 50
+      };
       var width = 1060 - margin.left - margin.right;
       var height = 500 - margin.top - margin.bottom;
-      var formatDate = d3.time.format('%Y-%m-%d');  
+      var formatDate = d3.time.format('%Y-%m-%d');
       var x = d3.time.scale()
-        .domain([formatDate.parse(this.weeksInYear[this.curWeek]), formatDate.parse(this.weeksInYear[this.curWeek+4])]) 
-        .range([0,width])
+        .domain([formatDate.parse(this.weeksInYear[this.curWeek]), formatDate.parse(this.weeksInYear[this.curWeek + 4])])
+        .range([0, width])
       var y = d3.scale.linear()
-          .domain([5.9, .4])
-          .range([height, 0]);
+        .domain([5.9, .4])
+        .range([height, 0]);
 
 
       var xAxis = d3.svg.axis()
@@ -297,19 +311,19 @@ export default {
         .tickSize(-height)
         //.tickPadding(10)    
         //.tickSubdivide(true)    
-        .orient("bottom");  
-    
+        .orient("bottom");
+
       var yAxis = d3.svg.axis()
         .scale(y)
         .tickPadding(10)
         .tickSize(-width)
         .tickFormat(d3.format('d'))
-        .tickSubdivide(true)    
+        .tickSubdivide(true)
         .orient("left");
 
-      var zoom = d3.behavior.zoom().scaleExtent([1,1])
+      var zoom = d3.behavior.zoom().scaleExtent([1, 1])
         .x(x)
-        .on("zoom", zoomed);    
+        .on("zoom", zoomed);
 
       var svg = d3.select("body").append("svg")
         .call(zoom)
@@ -334,18 +348,22 @@ export default {
         .attr("class", "axis-label")
         .attr("transform", "rotate(-90)")
         .attr("y", (-margin.left) + 10)
-        .attr("x", -height/2)
+        .attr("x", -height / 2)
         .text('Rank');
       svg.append("clipPath")
-      .attr("id", "clip")
-      .append("rect")
-      .attr("width", width)
-      .attr("height", height);
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
 
       var line = d3.svg.line()
-        .interpolate("linear")  
-        .x(function(d) { return x(d.x); })
-        .y(function(d) { return y(d.y); });
+        .interpolate("linear")
+        .x(function (d) {
+          return x(d.x);
+        })
+        .y(function (d) {
+          return y(d.y);
+        });
 
       /*svg.selectAll('.line')
         .data(data)
@@ -363,21 +381,25 @@ export default {
         .enter()
         .append("g")
         .attr("class", "dots")
-        //.attr("clip-path", "url(#clip)");   
+      //.attr("clip-path", "url(#clip)");   
 
       points.selectAll('.dot')
-        .data(function(d, index){       
-            //console.log(d,index);
-            var a = [];
-            d.forEach(function(point,i){
-                a.push({'index': index, 'point': point});
-            });     
-            return a;
+        .data(function (d, index) {
+          var a = [];
+          d.forEach(function (point, i) {
+            a.push({
+              'index': index,
+              'point': point
+            });
+          });
+          return a;
         })
         .enter()
         //.append('circle')
         .append('image')
-        .attr('xlink:href', function(d){return d.point.pic;})
+        .attr('xlink:href', function (d) {
+          return d.point.pic;
+        })
         .attr('width', 64)
         .attr('height', 64)
         .on('mouseover', tooltipIn)
@@ -389,79 +411,80 @@ export default {
         //.attr('fill', function(d,i){    
         //    return d.point.color;
         //})  
-        .attr("transform", function(d) { 
-            //console.log(d.point.x);
-            return "translate(" + x(d.point.x) + "," + y(d.point.y) + ")"; }
-        );
-            
+        .attr("transform", function (d) {
+          //console.log(d.point.x);
+          return "translate(" + x(d.point.x) + "," + y(d.point.y) + ")";
+        });
+
       function zoomed() {
         svg.select(".x.axis").call(xAxis);
-        svg.select(".y.axis").call(yAxis);   
-        svg.selectAll('path.line').attr('d', line);  
-     
-        points.selectAll('image').attr("transform", function(d) { 
-            return "translate(" + x(d.point.x) + "," + y(d.point.y) + ")"; 
+        svg.select(".y.axis").call(yAxis);
+        svg.selectAll('path.line').attr('d', line);
+
+        points.selectAll('image').attr("transform", function (d) {
+          return "translate(" + x(d.point.x) + "," + y(d.point.y) + ")";
         })
       }
 
-      function tooltipIn(d,i) {
-        console.log('in', d,i);
+      function tooltipIn(d, i) {
         svg.append('text').attr({
-          id: 'tooltip-'+i,
-          x: function () { return x(d.point.x) - 10;},
-          y: function () { return y(d.point.y) - 5;},
-          fill: '#4682B4'
-        })
-        //.style('color','#4682B4')
-        .text(function () {
-          //console.log(d);
-          return d.point.artist + ': '+ d.point.track;
-        });
+            id: 'tooltip-' + i,
+            x: function () {
+              return x(d.point.x) - 10;
+            },
+            y: function () {
+              return y(d.point.y) - 5;
+            },
+            fill: '#4682B4'
+          })
+          //.style('color','#4682B4')
+          .text(function () {
+            //console.log(d);
+            return d.point.artist + ': ' + d.point.track;
+          });
       }
-      function tooltipOut(d,i) {
+
+      function tooltipOut(d, i) {
         //d3.select('#x'+x(d.point.x)+'-'+y(d.point.y)+'-'+i).remove()
-        d3.select('#tooltip-'+i).remove();
+        d3.select('#tooltip-' + i).remove();
         //console.log('#tooltip-'+i);
         //console.log('out',d,i)
       }
     },
-    play () { 
-      for(var i = 1; i<=5; i++){
-        if(this.weeks[this.curWeek]['.value'][i].mp3){
+    play() {
+      for (var i = 1; i <= 5; i++) {
+        if (this.weeks[this.curWeek]['.value'][i].mp3) {
           const newTrack = this.weeks[this.curWeek]['.value'][i];
-          if(this.curAudio && newTrack.track != this.curTrack) {
+          if (this.curAudio && newTrack.track != this.curTrack) {
             this.curAudio.pause();
-          }
-          else if (newTrack.track === this.curTrack) {
-            if (Math.round(this.curAudio.currentTime)>=30) {
+          } else if (newTrack.track === this.curTrack) {
+            if (Math.round(this.curAudio.currentTime) >= 30) {
               this.curAudio.currentTime = 0;
             }
-            this.lastCheckOrAction = Math.floor(Date.now()/1000);
+            this.lastCheckOrAction = Math.floor(Date.now() / 1000);
             break;
           }
           this.curTrack = newTrack.track;
-          if(this.curAudio===null) {
+          if (this.curAudio === null) {
             this.curAudio = new Audio(newTrack.mp3);
           } else {
             this.curAudio.src = newTrack.mp3;
             this.curAudio.currentTime = 0;
           }
           this.curAudio.play();
-          this.lastCheckOrAction = Math.floor(Date.now()/1000);
+          this.lastCheckOrAction = Math.floor(Date.now() / 1000);
           break;
         }
       }
     },
-
     manageTimer() {
       this.startTime = new Date();
-      this.intervalID = setInterval(()=>{
+      this.intervalID = setInterval(() => {
         this.step();
-      },15000);
+      }, 15000);
     },
-
     step() {
-      if(this.curAudio) {
+      if (this.curAudio) {
         this.curWeek++;
         this.drawPlot();
       }
@@ -473,53 +496,48 @@ export default {
         this.play();
       }
     },
-
     startLifeCycle() {
-      if (this.weeks[this.curWeek]===undefined) {
-        setTimeout(()=>{
+      if (this.weeks[this.curWeek] === undefined) {
+        setTimeout(() => {
           this.startLifeCycle();
-        },500)
-      }
-      else {
+        }, 500)
+      } else {
         this.step();
         this.manageTimer();
       }
     },
-
     getPlayedSong(week) {
       var song;
-      if (this.weeks[week]===undefined) {
+      if (this.weeks[week] === undefined) {
         return {};
       }
-      for(var i = 1; i<=5; i++){
-        if(this.weeks[week]['.value'][i].mp3){
+      for (var i = 1; i <= 5; i++) {
+        if (this.weeks[week]['.value'][i].mp3) {
           song = this.weeks[week]['.value'][i];
           break;
         }
       }
       return song;
     },
-
-    handleScroll () {
+    handleScroll() {
       var player = document.getElementById('player');
       if (!this.stickControl) {
         this.playerControlOffset = player.offsetTop;
       }
-      if(window.pageYOffset + window.innerHeight >= this.playerControlOffset + player.offsetHeight) {
+      if (window.pageYOffset + window.innerHeight >= this.playerControlOffset + player.offsetHeight) {
         this.stickControl = true;
-      }
-      else {
+      } else {
         this.stickControl = false;
       }
     },
-
-    done () {
+    done() {
       this.curWeek = 0;
       this.curAudio = null;
       this.curTrack = '';
-      this.$router.push({ name:"HelloWorld" });
+      this.$router.push({
+        name: "HelloWorld"
+      });
     }
-
   }
 }
 </script>
@@ -535,29 +553,37 @@ body {
 }
 
 #title {
-  height:50px;
+  height: 50px;
 }
-h1, h2 {
+
+h1,
+h2 {
   font-weight: normal;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }
-.sticky{
-  position:fixed;
+
+.sticky {
+  position: fixed;
   bottom: 0;
-  width:100%;
+  width: 100%;
   z-index: 0;
 }
+
 .pad-bot {
-  padding-bottom:200px;
+  padding-bottom: 200px;
 }
+
 </style>

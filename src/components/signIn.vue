@@ -45,8 +45,8 @@
       reset: function () {
         this.username = '';
         this.password = '';
-        this.status= 'Please enter your credentials:';
-        this.error= false;
+        this.status = 'Please enter your credentials:';
+        this.error = false;
       },
       cancel: function () {
         this.reset();
@@ -85,9 +85,7 @@
       }
     }
   }
-
 </script>
-
 
 <style scoped>
   .sq-alert {

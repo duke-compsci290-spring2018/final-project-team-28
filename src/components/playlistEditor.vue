@@ -1,41 +1,41 @@
 <template>
-<div>
-  <div class="sonquest-modal container-fluid song-container">
-    <div class="sonquest-modal-content w-50">
-      <h2 class="pt-3 pb-3">{{name}}</h2>
-      <h4 class="pb-3">{{status}}</h4>
-      <div class="playlist-list container">
-        <ul>
-          <li class="row">
-            <span class="col-8">
-              <input class="text-center" type="text" placeholder="Song" v-model="searchSong"/>
-              <input class="text-center" type="text" placeholder="Artist" v-model="searchArtist"/>
-            </span>
-            <span class="col-4">
-              <button v-on:click="addSong" class="btn btn-default">&plus;</button>
-            </span>
-          </li>
-          <li v-for="(s, index) in songs" class="row">
-            <span class="col-8">
-              <img class="img-fluid album-pic" v-bind:src="s.img" v-bind:alt="s.track"/>
-              <label class="text-center">{{s.track}} by: {{s.artist}}</label>
-            </span>
-            <span class="col-4">
-              <div class="row">
-                <button v-on:click="deleteSong(s)" class="btn btn-default col-2 mr-3">&times;</button>
-                <div class="d-inline-block col-2">
-                  <button v-if="index!=0" v-on:click="moveUp(s)" class="btn btn-default d-block arrow-btn">&uarr;</button>
-                  <button v-if="index!=songs.length-1" v-on:click="moveDown(s)" class="btn btn-default d-block arrow-btn">&darr;</button>
+  <div>
+    <div class="sonquest-modal container-fluid song-container">
+      <div class="sonquest-modal-content w-50">
+        <h2 class="pt-3 pb-3">{{name}}</h2>
+        <h4 class="pb-3">{{status}}</h4>
+        <div class="playlist-list container">
+          <ul>
+            <li class="row">
+              <span class="col-8">
+                <input class="text-center" type="text" placeholder="Song" v-model="searchSong" />
+                <input class="text-center" type="text" placeholder="Artist" v-model="searchArtist" />
+              </span>
+              <span class="col-4">
+                <button v-on:click="addSong" class="btn btn-default">&plus;</button>
+              </span>
+            </li>
+            <li v-for="(s, index) in songs" class="row">
+              <span class="col-8">
+                <img class="img-fluid album-pic" v-bind:src="s.img" v-bind:alt="s.track" />
+                <label class="text-center">{{s.track}} by: {{s.artist}}</label>
+              </span>
+              <span class="col-4">
+                <div class="row">
+                  <button v-on:click="deleteSong(s)" class="btn btn-default col-2 mr-3">&times;</button>
+                  <div class="d-inline-block col-2">
+                    <button v-if="index!=0" v-on:click="moveUp(s)" class="btn btn-default d-block arrow-btn">&uarr;</button>
+                    <button v-if="index!=songs.length-1" v-on:click="moveDown(s)" class="btn btn-default d-block arrow-btn">&darr;</button>
+                  </div>
                 </div>
-              </div>
-            </span>
-          </li>
-        </ul>
+              </span>
+            </li>
+          </ul>
+        </div>
+        <button v-on:click="closeModal()">&times;</button>
       </div>
-      <button v-on:click="closeModal()">&times;</button>
     </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -80,7 +80,7 @@ export default {
             this.searchSong = '';
           })
           .catch(err => {
-            console.error(err);
+            this.status = 'Unable to add song';
           });
       }
     },
@@ -115,8 +115,6 @@ export default {
     }
   }
 }
-
-  
 </script>
 
 <style scope>
@@ -187,5 +185,4 @@ export default {
     color: #ff7777;
   }
 }
-
 </style>

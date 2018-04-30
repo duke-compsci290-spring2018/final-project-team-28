@@ -24,8 +24,8 @@
                 <div class="row">
                   <button v-on:click="deleteSong(s)" class="btn btn-default col-2 mr-3">&times;</button>
                   <div class="d-inline-block col-2">
-                    <button v-if="index!=0" v-on:click="moveUp(s)" class="btn btn-default d-block arrow-btn">&uarr;</button>
-                    <button v-if="index!=songs.length-1" v-on:click="moveDown(s)" class="btn btn-default d-block arrow-btn">&darr;</button>
+                    <button v-if="index!=0" v-on:click="moveUp(s)" class="btn btn-default d-block pt-0 pb-0 arrow-btn">&uarr;</button>
+                    <button v-if="index!=songs.length-1" v-on:click="moveDown(s)" class="btn btn-default d-block pt-0 pb-0 arrow-btn">&darr;</button>
                   </div>
                 </div>
               </span>
@@ -119,7 +119,7 @@ export default {
 
 <style scope>
 .album-pic {
-  height: 80px;
+  width: 80px;
 }
 
 .arrow-btn {

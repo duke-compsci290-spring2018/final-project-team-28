@@ -160,6 +160,16 @@ export default {
       this.weeks.forEach(function (elem) {
         weeks.push(elem['.key']);
       });
+      
+      for(var i = 0; i < 4; i++){
+        var lastWeek = weeks[weeks.length-1];
+        var inFuture = this.convertToDate(lastWeek);
+        var dayDelta = 7; 
+        var futureTime = inFuture.getTime() +  (dayDelta * 24 * 60 * 60 * 1000);
+        var futureDate = new Date(futureTime);
+        var weekString = futureDate.getFullYear().toString() + '-' + (futureDate.getMonth()+1).toString() + '-' + futureDate.getDate().toString();
+        weeks.push(weekString);
+      }
       return weeks;
     },
 
@@ -283,10 +293,23 @@ export default {
       return cleanArtist;
     },
 
+    convertToDate(s){
+      var indices = [];
+      for(var i = 0; i < s.length; i++){
+        if(s[i]==='-'){
+          indices.push(i);
+        }
+      }
+      return new Date(parseInt(s.substring([0,indices[0]])), parseInt(s.substring(indices[0]+1, indices[1]))-1, parseInt(s.substring(indices[1]+1, s.length)),0,0,0,0);
+    },
+
+
     drawPlot() {
       try {
         document.getElementsByTagName('svg')[0].remove();
-      } catch (e) {}
+      } 
+      catch (e) {} 
+
       var data = this.getPlottable;
       var margin = {
         top: 20,
@@ -294,11 +317,16 @@ export default {
         bottom: 30,
         left: 50
       };
+      var inFuture = this.convertToDate(this.weeksInYear[this.curWeek]);
+      var weeksDelta = 28; 
+      var futureTime = inFuture.getTime() +  (weeksDelta * 24 * 60 * 60 * 1000);
+      var futureDate = new Date(futureTime);
+
       var width = 1060 - margin.left - margin.right;
       var height = 500 - margin.top - margin.bottom;
       var formatDate = d3.time.format('%Y-%m-%d');
       var x = d3.time.scale()
-        .domain([formatDate.parse(this.weeksInYear[this.curWeek]), formatDate.parse(this.weeksInYear[this.curWeek + 4])])
+        .domain([this.convertToDate(this.weeksInYear[this.curWeek]), futureDate])
         .range([0, width])
       var y = d3.scale.linear()
         .domain([5.9, .4])

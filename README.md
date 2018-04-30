@@ -23,7 +23,9 @@
 
 
 # Bugs
-We were not able to get d3 to work properly with Vue and Webpack. Whenever any sort of polygon was formed in our visualization, it was shaded black, obscuring the entire SVG. Unfortunately that kept us from putting our initially planned visualization on to the final website (we have a version of it on Github that works outside of webpack). Even in the d3 viz we have currently, the polygon effect manifests itself in an unchangeable black background.
+* We were not able to get d3 to work properly with Vue and Webpack. Whenever any sort of polygon was formed in our visualization, it was shaded black, obscuring the entire SVG. Unfortunately that kept us from putting our initially planned visualization on to the final website (we have a version of it on Github that works outside of webpack). Even in the d3 viz we have currently, the polygon effect manifests itself in an unchangeable black background.
+
+* The console will occasionally log 404 errors that occur when the Spotify API does not deliver a good response to our backend.
 
 # Site usefulness
 

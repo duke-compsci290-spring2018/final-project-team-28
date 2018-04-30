@@ -44,6 +44,10 @@
 <script>
 var axios = require('axios');
 var FileSaver = require('file-saver');
+var firebase = require('firebase');
+
+var db = firebase.app().database();
+
 export default {
   name: 'playlistManager',
   props: ['playlistRef', 'user', 'play', 'containerColor'],
@@ -117,7 +121,7 @@ export default {
       this.playlistRef.child(tempIndex).set(tempTar);
     },
     downloadPlaylists() {
-      axios.get('http://localhost:3000/user/' + this.user)
+      axios.get('/user/' + this.user)
         .then(response => {
           var jString = JSON.stringify(response.data);
           var blob = new Blob([jString], {
